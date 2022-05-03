@@ -14,24 +14,24 @@ import java.util.stream.Collectors;
 public class AppExceptionHandler {
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ErrorMessages> handleAppException(AppException exception) {
-        return responseErrorMessages(List.of(exception.getMessage()));
+        return responseErrorMessages(List.of(exception.getMessage()), exception.getError().getStatus());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessages> handleValidationError(MethodArgumentNotValidException exception) {
         List<String> messages = exception.getBindingResult().getFieldErrors().stream().map(this::createFieldErrorMessage).collect(Collectors.toList());
-        return responseErrorMessages(messages);
+        return responseErrorMessages(messages, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessages> handleException(Exception exception) {
-        return responseErrorMessages(List.of("internal server error"));
+        return responseErrorMessages(List.of("internal server error"), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    private ResponseEntity<ErrorMessages> responseErrorMessages(List<String> messages) {
+    private ResponseEntity<ErrorMessages> responseErrorMessages(List<String> messages, HttpStatus status) {
         ErrorMessages errorMessages = new ErrorMessages();
         messages.forEach(errorMessages::append);
-        return new ResponseEntity<>(errorMessages, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(errorMessages, status);
     }
 
     private String createFieldErrorMessage(FieldError fieldError) {

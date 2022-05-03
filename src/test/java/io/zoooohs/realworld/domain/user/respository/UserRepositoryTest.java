@@ -25,7 +25,7 @@ public class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        savedUser = UserEntity.builder().username("username").email("test@test.com").password("password").bio("").build();
+        savedUser = UserEntity.builder().name("username").email("test@test.com").password("password").bio("").build();
         userRepository.save(savedUser);
     }
 
@@ -42,7 +42,7 @@ public class UserRepositoryTest {
     @MethodSource("validUserRegistration")
     @ParameterizedTest
     void whenUsernameOrEmailExist_thenUserEntityFound(String username, String email) {
-        List<UserEntity> actual = userRepository.findByUsernameOrEmail(username, email);
+        List<UserEntity> actual = userRepository.findByNameOrEmail(username, email);
 
         assertTrue(actual.size() > 0);
     }

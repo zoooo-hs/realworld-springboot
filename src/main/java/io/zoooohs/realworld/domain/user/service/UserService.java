@@ -6,4 +6,6 @@ public interface UserService {
     UserDto registration(final UserDto.Registration registration);
 
     UserDto login(final UserDto.Login login);
+
+    UserDto currentUser(final UserDto.Auth authUser);
 }

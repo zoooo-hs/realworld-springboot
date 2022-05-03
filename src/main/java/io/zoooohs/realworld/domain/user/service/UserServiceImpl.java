@@ -20,8 +20,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto registration(final UserDto.Registration registration) {
-        userRepository.findByUsernameOrEmail(registration.getUsername(), registration.getEmail()).stream().findAny().ifPresent(entity -> {throw new AppException(Error.DUPLICATED_USER);});
-        UserEntity userEntity = UserEntity.builder().username(registration.getUsername()).email(registration.getEmail()).password(passwordEncoder.encode(registration.getPassword())).bio("").build();
+        userRepository.findByNameOrEmail(registration.getName(), registration.getEmail()).stream().findAny().ifPresent(entity -> {throw new AppException(Error.DUPLICATED_USER);});
+        UserEntity userEntity = UserEntity.builder().name(registration.getName()).email(registration.getEmail()).password(passwordEncoder.encode(registration.getPassword())).bio("").build();
         userRepository.save(userEntity);
         return convertEntityToDto(userEntity);
     }
@@ -34,6 +34,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserDto convertEntityToDto(UserEntity userEntity) {
-        return UserDto.builder().username(userEntity.getUsername()).bio(userEntity.getBio()).email(userEntity.getEmail()).image(userEntity.getImage()).token(jwtUtils.encode(userEntity.getUsername())).build();
+        return UserDto.builder().name(userEntity.getName()).bio(userEntity.getBio()).email(userEntity.getEmail()).image(userEntity.getImage()).token(jwtUtils.encode(userEntity.getUsername())).build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserDto currentUser(UserDto.Auth authUser) {
+        UserEntity userEntity = userRepository.findById(authUser.getId()).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+        return convertEntityToDto(userEntity);
     }
 }

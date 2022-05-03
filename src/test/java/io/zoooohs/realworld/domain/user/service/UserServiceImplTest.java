@@ -3,14 +3,15 @@ package io.zoooohs.realworld.domain.user.service;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.domain.user.repository.UserRepository;
-import io.zoooohs.realworld.exception.Error;
 import io.zoooohs.realworld.exception.AppException;
+import io.zoooohs.realworld.exception.Error;
 import io.zoooohs.realworld.security.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class UserServiceImplTest {
 
     @Test
     void whenValidRegistrationInfo_thenSaveNewUserAndReturnNewUserDto() {
-        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").username("testman").password("password").build();
+        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").name("testman").password("password").build();
 
         when(jwtUtils.encode(anyString())).thenReturn("token.test.needed");
         when(passwordEncoder.encode(anyString())).thenReturn("b{testpasswordencodedstring}");
@@ -49,7 +50,7 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).save(any(UserEntity.class));
 
         assertEquals(registration.getEmail(), actual.getEmail());
-        assertEquals(registration.getUsername(), actual.getUsername());
+        assertEquals(registration.getName(), actual.getName());
         assertEquals("", actual.getBio());
         assertNull(actual.getImage());
         assertNotNull(actual.getToken());
@@ -57,9 +58,9 @@ public class UserServiceImplTest {
 
     @Test
     void whenDuplicatedUserRegistration_thenThrowDuplicationException() {
-        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").username("testman").password("password").build();
+        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").name("testman").password("password").build();
 
-        when(userRepository.findByUsernameOrEmail(anyString(), anyString())).thenReturn(List.of(UserEntity.builder().build()));
+        when(userRepository.findByNameOrEmail(anyString(), anyString())).thenReturn(List.of(UserEntity.builder().build()));
 
         try {
             userService.registration(registration);
@@ -76,7 +77,7 @@ public class UserServiceImplTest {
         UserDto.Login login = UserDto.Login.builder().email("test@test.com").password("password123").build();
 
         UserEntity userEntity = UserEntity.builder()
-                .username("username")
+                .name("username")
                 .email(login.getEmail())
                 .password("test-password-encoded")
                 .build();
@@ -104,6 +105,43 @@ public class UserServiceImplTest {
         } catch (Exception e) {
             fail();
         }
+    }
 
+    @Test
+    void whenAuthUser_thenReturnUser() {
+        UserDto.Auth authUser = UserDto.Auth.builder()
+                .id(1L)
+                .name("username")
+                .email("email@meail.com")
+                .build();
+
+        UserEntity userEntity = UserEntity.builder()
+                .name(authUser.getName())
+                .email(authUser.getEmail())
+                .password("test-password-encoded")
+                .build();
+
+        when(userRepository.findById(eq(authUser.getId()))).thenReturn(Optional.of(userEntity));
+
+        UserDto actual = userService.currentUser(authUser);
+
+        assertEquals(authUser.getEmail(), actual.getEmail());
+        assertEquals(authUser.getName(), actual.getName());
+    }
+
+    @Test
+    void whenAuthUserNotFound_throw404() {
+        UserDto.Auth authUser = UserDto.Auth.builder()
+                .id(1L)
+                .build();
+        try {
+            userService.currentUser(authUser);
+            fail();
+        } catch (AppException e) {
+            assertEquals(Error.USER_NOT_FOUND, e.getError());
+            assertEquals(HttpStatus.NOT_FOUND, e.getError().getStatus());
+        } catch (Exception e) {
+            fail();
+        }
     }
 }

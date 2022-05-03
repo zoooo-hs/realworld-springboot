@@ -1,8 +1,11 @@
 package io.zoooohs.realworld.domain.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 import javax.validation.constraints.*;
 
@@ -14,7 +17,9 @@ import javax.validation.constraints.*;
 public class UserDto {
     private String email;
     private String token;
-    private String username;
+
+    @JsonProperty("username")
+    private String name;
     private String bio;
     private String image;
 
@@ -24,9 +29,10 @@ public class UserDto {
     @JsonTypeName("user")
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     public static class Registration {
+        @JsonProperty("username")
         @NotNull
         @Pattern(regexp = "[\\w\\d]{1,30}", message = "string contains alphabet or digit with length 1 to 30")
-        private String username;
+        private String name;
 
         @NotNull
         @Email
@@ -50,5 +56,16 @@ public class UserDto {
         @NotBlank
         @Size(min = 8, max = 32)
         private String password;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    public static class Auth {
+        private Long id;
+        private String email;
+        private String name;
+        private String bio;
+        private String image;
     }
 }
