@@ -36,4 +36,19 @@ public class UserDto {
         @Size(min = 8, max = 32)
         private String password;
     }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    @JsonTypeName("user")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    public static class Login {
+        @NotNull
+        @Email
+        private String email;
+
+        @NotBlank
+        @Size(min = 8, max = 32)
+        private String password;
+    }
 }

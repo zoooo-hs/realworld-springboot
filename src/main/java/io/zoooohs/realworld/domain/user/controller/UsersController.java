@@ -20,4 +20,9 @@ public class UsersController {
     public UserDto registration(@RequestBody @Valid UserDto.Registration registration) {
         return userService.registration(registration);
     }
+
+    @PostMapping("/login")
+    public UserDto login(@RequestBody @Valid UserDto.Login login) {
+        return userService.login(login);
+    }
 }

@@ -2,6 +2,7 @@ package io.zoooohs.realworld.domain.user.respository;
 
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -20,11 +21,18 @@ public class UserRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+    private UserEntity savedUser;
+
+    @BeforeEach
+    void setUp() {
+        savedUser = UserEntity.builder().username("username").email("test@test.com").password("password").bio("").build();
+        userRepository.save(savedUser);
+    }
+
 
     @Test
     void whenSave_thenCanBeFound() {
-        UserEntity user = UserEntity.builder().username("username").email("test@test.com").password("password").bio("").build();
-        Long id = userRepository.save(user).getId();
+        Long id = savedUser.getId();
 
         Optional<UserEntity> maybeUserEntity = userRepository.findById(id);
 
@@ -34,9 +42,6 @@ public class UserRepositoryTest {
     @MethodSource("validUserRegistration")
     @ParameterizedTest
     void whenUsernameOrEmailExist_thenUserEntityFound(String username, String email) {
-        UserEntity user = UserEntity.builder().username("username").email("test@test.com").password("password").bio("").build();
-        userRepository.save(user);
-
         List<UserEntity> actual = userRepository.findByUsernameOrEmail(username, email);
 
         assertTrue(actual.size() > 0);
@@ -48,5 +53,14 @@ public class UserRepositoryTest {
                 Arguments.of("username", null),
                 Arguments.of("username", "test@test.com")
         );
+    }
+
+    @Test
+    void whenEmailExist_thenUserEntityFound() {
+        String email = savedUser.getEmail();
+
+        Optional<UserEntity> maybeUser = userRepository.findByEmail(email);
+
+        assertTrue(maybeUser.isPresent());
     }
 }

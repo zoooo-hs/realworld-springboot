@@ -4,4 +4,6 @@ import io.zoooohs.realworld.domain.user.dto.UserDto;
 
 public interface UserService {
     UserDto registration(final UserDto.Registration registration);
+
+    UserDto login(final UserDto.Login login);
 }

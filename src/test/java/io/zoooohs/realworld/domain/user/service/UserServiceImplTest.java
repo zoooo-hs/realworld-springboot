@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,5 +69,41 @@ public class UserServiceImplTest {
         } catch (Exception e) {
             fail();
         }
+    }
+
+    @Test
+    void whenValidLoginInfo_thenReturnUserDto() {
+        UserDto.Login login = UserDto.Login.builder().email("test@test.com").password("password123").build();
+
+        UserEntity userEntity = UserEntity.builder()
+                .username("username")
+                .email(login.getEmail())
+                .password("test-password-encoded")
+                .build();
+
+
+        when(jwtUtils.encode(anyString())).thenReturn("token.test.needed");
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
+        when(passwordEncoder.matches(eq(login.getPassword()), eq(userEntity.getPassword()))).thenReturn(true);
+
+        UserDto actual = userService.login(login);
+
+        assertNotNull(actual.getToken());
+        assertEquals(login.getEmail(), actual.getEmail());
+    }
+
+    @Test
+    void whenInvalidLoginInfo_thenThrow422() {
+        UserDto.Login login = UserDto.Login.builder().email("test@test.com").password("password123").build();
+
+        try {
+            userService.login(login);
+            fail();
+        } catch (AppException e) {
+            assertEquals(Error.LOGIN_INFO_INVALID, e.getError());
+        } catch (Exception e) {
+            fail();
+        }
+
     }
 }
