@@ -1,10 +1,10 @@
 package io.zoooohs.realworld.domain.user.entity;
 
 import io.zoooohs.realworld.domain.common.entity.BaseEntity;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -14,8 +14,7 @@ import javax.persistence.Table;
 import java.util.Collection;
 
 @Getter
-@Builder
-@AllArgsConstructor
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
@@ -30,6 +29,16 @@ public class UserEntity extends BaseEntity implements UserDetails {
     private String bio;
     @Column
     private String image;
+
+    @Builder
+    public UserEntity(Long id, String name, String email, String password, String bio, String image) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.bio = bio;
+        this.image = image;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

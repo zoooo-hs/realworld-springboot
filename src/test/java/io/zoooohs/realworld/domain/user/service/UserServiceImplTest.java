@@ -9,6 +9,9 @@ import io.zoooohs.realworld.security.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -143,5 +147,66 @@ public class UserServiceImplTest {
         } catch (Exception e) {
             fail();
         }
+    }
+
+    @Test
+    void whenUpdateUserDto_thenReturnUpdatedUserDto() {
+        UserDto.Auth authUser = UserDto.Auth.builder()
+                .id(1L)
+                .build();
+        UserDto.Update update = UserDto.Update.builder().name("newName").bio("newBio").build();
+
+        UserEntity userEntity = UserEntity.builder()
+                .name("username")
+                .email("email@email.com")
+                .password("test-password-encoded")
+                .build();
+        when(userRepository.findById(eq(authUser.getId()))).thenReturn(Optional.of(userEntity));
+
+        UserDto actual = userService.update(update, authUser);
+
+        assertEquals(update.getName(), actual.getName());
+        assertEquals(update.getBio(), actual.getBio());
+        assertNotNull(actual.getName());
+        assertNotNull(actual.getEmail());
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidUpdate")
+    void whenInvalidUpdateDto_thenThrow422(UserDto.Update update) {
+        UserDto.Auth authUser = UserDto.Auth.builder()
+                .id(1L)
+                .build();
+
+        UserEntity userEntity = UserEntity.builder()
+                .id(1L)
+                .name("username")
+                .email("email@email.com")
+                .password("test-password-encoded")
+                .build();
+
+
+        when(userRepository.findById(eq(authUser.getId()))).thenReturn(Optional.of(userEntity));
+        if (update.getEmail() != null) {
+            when(userRepository.findByEmail(eq("dup@email.com"))).thenReturn(Optional.of(UserEntity.builder().id(2L).email("dup@email.com").build()));
+        } else if (update.getName() != null) {
+            when(userRepository.findByName(eq("dupName"))).thenReturn(Optional.of(UserEntity.builder().id(2L).name("dupName").build()));
+        }
+
+        try {
+            userService.update(update, authUser);
+            fail();
+        } catch (AppException e) {
+            assertEquals(Error.DUPLICATED_USER, e.getError());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    public static Stream<Arguments> invalidUpdate() {
+        return Stream.of(
+                Arguments.of(UserDto.Update.builder().name("dupName").build()),
+                Arguments.of(UserDto.Update.builder().email("dup@email.com").build())
+        );
     }
 }

@@ -43,4 +43,38 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findById(authUser.getId()).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
         return convertEntityToDto(userEntity);
     }
+
+    @Override
+    public UserDto update(UserDto.Update update, UserDto.Auth authUser) {
+        UserEntity userEntity = userRepository.findById(authUser.getId()).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+
+        if (update.getName() != null) {
+            userRepository.findByName(update.getName())
+                    .filter(found -> !found.getId().equals(userEntity.getId()))
+                    .ifPresent(found -> {throw new AppException(Error.DUPLICATED_USER);});
+            userEntity.setName(update.getName());
+        }
+
+        if (update.getEmail() != null) {
+            userRepository.findByEmail(update.getEmail())
+                    .filter(found -> !found.getId().equals(userEntity.getId()))
+                    .ifPresent(found -> {throw new AppException(Error.DUPLICATED_USER);});
+            userEntity.setEmail(update.getEmail());
+        }
+
+        if (update.getPassword() != null) {
+            userEntity.setPassword(passwordEncoder.encode(update.getPassword()));
+        }
+
+        if (update.getBio() != null) {
+            userEntity.setBio(update.getBio());
+        }
+
+        if (update.getImage() != null) {
+            userEntity.setImage(update.getImage());
+        }
+
+        userRepository.save(userEntity);
+        return convertEntityToDto(userEntity);
+    }
 }

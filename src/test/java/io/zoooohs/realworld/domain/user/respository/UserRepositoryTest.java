@@ -63,4 +63,13 @@ public class UserRepositoryTest {
 
         assertTrue(maybeUser.isPresent());
     }
+
+    @Test
+    void whenNameExist_thenUserEntityFound() {
+        String name = savedUser.getName();
+
+        Optional<UserEntity> maybeUser = userRepository.findByName(name);
+
+        assertTrue(maybeUser.isPresent());
+    }
 }

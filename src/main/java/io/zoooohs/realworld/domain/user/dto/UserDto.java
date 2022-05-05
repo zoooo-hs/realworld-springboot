@@ -61,6 +61,20 @@ public class UserDto {
     @Getter
     @AllArgsConstructor
     @Builder
+    @JsonTypeName("user")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    public static class Update {
+        private Long id;
+        private String email;
+        private String name;
+        private String bio;
+        private String image;
+        private String password;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
     public static class Auth {
         private Long id;
         private String email;

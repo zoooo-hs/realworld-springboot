@@ -8,4 +8,6 @@ public interface UserService {
     UserDto login(final UserDto.Login login);
 
     UserDto currentUser(final UserDto.Auth authUser);
+
+    UserDto update(final UserDto.Update update, final UserDto.Auth authUser);
 }
