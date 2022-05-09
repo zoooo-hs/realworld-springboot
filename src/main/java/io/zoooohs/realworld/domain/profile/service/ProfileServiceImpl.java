@@ -20,14 +20,15 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileDto getProfile(String name, UserDto.Auth authUser) {
-        // TODO: add following information
-        return userRepository.findByName(name).map(entity -> ProfileDto.builder()
-                .name(name)
-                .bio(entity.getBio())
-                .image(entity.getImage())
-                .following(false)
-                .build())
-                .orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+        UserEntity user = userRepository.findByName(name).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+        Boolean following = followRepository.findByFolloweeIdAndFollowerId(user.getId(), authUser.getId()).isPresent();
+
+        return ProfileDto.builder()
+                .name(user.getName())
+                .bio(user.getBio())
+                .image(user.getImage())
+                .following(following)
+                .build();
     }
 
     @Transactional
