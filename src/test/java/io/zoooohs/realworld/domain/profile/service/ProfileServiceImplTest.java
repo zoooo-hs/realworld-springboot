@@ -1,20 +1,23 @@
 package io.zoooohs.realworld.domain.profile.service;
 
 import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
+import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
 import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.domain.user.repository.UserRepository;
+import io.zoooohs.realworld.exception.AppException;
+import io.zoooohs.realworld.exception.Error;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -68,5 +71,19 @@ public class ProfileServiceImplTest {
         ProfileDto actual = profileService.followUser(expectedUser.getName(), authUser);
 
         assertTrue(actual.getFollowing());
+    }
+
+    @Test
+    void whenFollowFollowedUsername_thenThrow422() {
+        when(followRepository.findByFolloweeIdAndFollowerId(expectedUser.getId(), authUser.getId())).thenReturn(Optional.of(FollowEntity.builder().build()));
+        try {
+            profileService.followUser(expectedUser.getName(), authUser);
+            fail();
+        } catch (AppException e) {
+            assertEquals(Error.ALREADY_FOLLOWED_USER, e.getError());
+        } catch (Exception e) {
+            fail();
+        }
+
     }
 }

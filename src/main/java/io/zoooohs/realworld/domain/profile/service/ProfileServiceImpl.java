@@ -37,6 +37,9 @@ public class ProfileServiceImpl implements ProfileService {
         UserEntity followee = userRepository.findByName(name).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
         UserEntity follower = UserEntity.builder().id(authUser.getId()).build(); // myself
 
+        followRepository.findByFolloweeIdAndFollowerId(followee.getId(), follower.getId())
+                .ifPresent(follow -> {throw new AppException(Error.ALREADY_FOLLOWED_USER);});
+
         FollowEntity follow =  FollowEntity.builder().followee(followee).follower(follower).build();
         followRepository.save(follow);
 
