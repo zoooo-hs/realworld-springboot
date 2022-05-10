@@ -87,11 +87,23 @@ public class ProfileServiceImplTest {
     }
 
     @Test
-    void whenUnFollowFollowedUsername_thenReturnProfile() {
+    void whenUnfollowFollowedUsername_thenReturnProfile() {
         when(followRepository.findByFolloweeIdAndFollowerId(expectedUser.getId(), authUser.getId())).thenReturn(Optional.of(FollowEntity.builder().build()));
 
         ProfileDto actual = profileService.unfollowUser(expectedUser.getName(), authUser);
 
         assertFalse(actual.getFollowing());
+    }
+
+    @Test
+    void whenUnfollowNotFollowedUsername_thenThrow404() {
+        try {
+            profileService.unfollowUser(expectedUser.getName(), authUser);
+            fail();
+        } catch (AppException e) {
+            assertEquals(Error.FOLLOW_NOT_FOUND, e.getError());
+        } catch (Exception e) {
+            fail();
+        }
     }
 }
