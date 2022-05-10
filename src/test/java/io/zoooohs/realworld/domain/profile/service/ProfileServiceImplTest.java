@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -85,5 +84,14 @@ public class ProfileServiceImplTest {
             fail();
         }
 
+    }
+
+    @Test
+    void whenUnFollowFollowedUsername_thenReturnProfile() {
+        when(followRepository.findByFolloweeIdAndFollowerId(expectedUser.getId(), authUser.getId())).thenReturn(Optional.of(FollowEntity.builder().build()));
+
+        ProfileDto actual = profileService.unfollowUser(expectedUser.getName(), authUser);
+
+        assertFalse(actual.getFollowing());
     }
 }

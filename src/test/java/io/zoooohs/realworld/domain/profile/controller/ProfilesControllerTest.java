@@ -17,8 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,6 +67,24 @@ public class ProfilesControllerTest {
         when(profileService.followUser(eq("testUser"), any(UserDto.Auth.class))).thenReturn(profileDto);
 
         mockMvc.perform(post("/profiles/testUser/follow"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.profile", Matchers.notNullValue(ProfileDto.class)))
+                .andExpect(jsonPath("$.profile.following", Matchers.is(true)));
+    }
+
+    @Test
+    @WithAuthUser
+    void whenUnFollowFollowedUsername_thenReturnProfile() throws Exception {
+        ProfileDto profileDto = ProfileDto.builder()
+                .name("testUser")
+                .bio("some bio")
+                .image("profilephoto")
+                .following(true)
+                .build();
+
+        when(profileService.unfollowUser(eq("testUser"), any(UserDto.Auth.class))).thenReturn(profileDto);
+
+        mockMvc.perform(delete("/profiles/testUser/follow"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.profile", Matchers.notNullValue(ProfileDto.class)))
                 .andExpect(jsonPath("$.profile.following", Matchers.is(true)));

@@ -22,4 +22,9 @@ public class ProfilesController {
     public ProfileDto followUser(@PathVariable("username") String name, @AuthenticationPrincipal UserDto.Auth authUser) {
         return profileService.followUser(name, authUser);
     }
+
+    @DeleteMapping("/{username}/follow")
+    public ProfileDto unfollowUser(@PathVariable("username") String name, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return profileService.unfollowUser(name, authUser);
+    }
 }
