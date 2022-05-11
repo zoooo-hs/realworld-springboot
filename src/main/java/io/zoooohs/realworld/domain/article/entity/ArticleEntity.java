@@ -12,6 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "articles")
+@NamedEntityGraph(name = "fetch-author", attributeNodes = {@NamedAttributeNode("author")})
 public class ArticleEntity extends BaseEntity {
     @Column(nullable = false)
     private String slug;

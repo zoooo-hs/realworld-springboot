@@ -3,8 +3,11 @@ package io.zoooohs.realworld.domain.article.servie;
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
+import io.zoooohs.realworld.domain.profile.service.ProfileService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
+import io.zoooohs.realworld.exception.AppException;
+import io.zoooohs.realworld.exception.Error;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
     private final ArticleRepository articleRepository;
+    private final ProfileService profileService;
 
     @Transactional
     @Override
@@ -34,6 +38,13 @@ public class ArticleServiceImpl implements ArticleService {
                 .build();
         articleEntity = articleRepository.save(articleEntity);
         return convertEntityToDto(articleEntity, false, 0L, false);
+    }
+
+    @Override
+    public ArticleDto getArticle(String slug, UserDto.Auth authUser) {
+        ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
+        Boolean following = profileService.getProfile(found.getAuthor().getName(), authUser).getFollowing();
+        return convertEntityToDto(found, false, 0L, following);
     }
 
     private ArticleDto convertEntityToDto(ArticleEntity entity, Boolean favorited, Long favoritesCount, Boolean following) {

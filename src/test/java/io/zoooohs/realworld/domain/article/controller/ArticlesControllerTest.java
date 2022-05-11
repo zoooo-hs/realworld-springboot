@@ -7,7 +7,9 @@ import io.zoooohs.realworld.domain.article.servie.ArticleService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.security.JWTAuthFilter;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,7 +21,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,26 +46,55 @@ public class ArticlesControllerTest {
     @MockBean
     ArticleService articleService;
 
-    @Test
-    @WithAuthUser
-    void whenValidArticleForm_thenReturnArticle() throws Exception {
-        ArticleDto article = ArticleDto.builder()
+    private ArticleDto article;
+    private ArticleDto.SingleArticle singleArticle;
+    private String slug;
+
+
+    @BeforeEach
+    void setUp() {
+        article = ArticleDto.builder()
                 .title("article title")
                 .description("description")
                 .body("hi there")
                 .tagList(List.of("tag1", "tag2"))
                 .build();
+        singleArticle = ArticleDto.SingleArticle.builder().article(article).build();
+        slug = "article-title";
+    }
 
-        ArticleDto.SingleArticle requestBody = ArticleDto.SingleArticle.builder().article(article).build();
-
+    @Test
+    @WithAuthUser
+    void whenValidArticleForm_thenReturnArticle() throws Exception {
         when(articleService.createArticle(any(ArticleDto.class), any(UserDto.Auth.class))).thenReturn(article);
 
         mockMvc.perform(post("/articles")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestBody))
+                        .content(objectMapper.writeValueAsString(singleArticle))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.article", Matchers.notNullValue(ArticleDto.class)));
+    }
+
+    @Test
+    @WithAuthUser
+    void whenThereIsArticleWithSlug_thenReturnSingleArticle() throws Exception {
+        when(articleService.getArticle(eq(slug), any(UserDto.Auth.class))).then((Answer<ArticleDto>) invocation ->
+                ArticleDto.builder()
+                        .slug(slug)
+                        .title("article title")
+                        .description("description")
+                        .body("hi there")
+                        .tagList(List.of("tag1", "tag2"))
+                        .build()
+        );
+
+        mockMvc.perform(get("/articles/" + slug))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", Matchers.notNullValue(ArticleDto.SingleArticle.class)))
+                .andExpect(jsonPath("$.article", Matchers.notNullValue(ArticleDto.class)))
+                .andExpect(jsonPath("$.article.title", Matchers.is(article.getTitle())))
+                .andExpect(jsonPath("$.article.slug", Matchers.is(slug)));
     }
 
 }

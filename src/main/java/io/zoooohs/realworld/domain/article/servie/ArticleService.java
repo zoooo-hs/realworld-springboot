@@ -5,4 +5,6 @@ import io.zoooohs.realworld.domain.user.dto.UserDto;
 
 public interface ArticleService {
     ArticleDto createArticle(final ArticleDto article, final UserDto.Auth authUser);
+
+    ArticleDto getArticle(final String slug, final UserDto.Auth authUser);
 }
