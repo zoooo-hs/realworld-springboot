@@ -21,7 +21,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ArticleServiceImplTest {
@@ -120,5 +120,15 @@ public class ArticleServiceImplTest {
 
         assertEquals(updateArticle.getTitle(), actual.getTitle());
         assertEquals("new-title", actual.getSlug());
+    }
+
+    @Test
+    void whenDeleteValidSlug_thenReturnVoid() {
+        String slug = "article-title";
+        when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
+
+        articleService.deleteArticle(slug, authUser);
+
+        verify(articleRepository, times(1)).delete(any(ArticleEntity.class));
     }
 }

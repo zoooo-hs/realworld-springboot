@@ -29,4 +29,9 @@ public class ArticlesController {
     public ArticleDto.SingleArticle<ArticleDto> createArticle(@PathVariable String slug, @Valid @RequestBody ArticleDto.SingleArticle<ArticleDto.Update> article, @AuthenticationPrincipal UserDto.Auth authUser) {
         return new ArticleDto.SingleArticle<>(articleService.updateArticle(slug, article.getArticle(), authUser));
     }
+
+    @DeleteMapping("/{slug}")
+    public void deleteArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
+        articleService.deleteArticle(slug, authUser);
+    }
 }

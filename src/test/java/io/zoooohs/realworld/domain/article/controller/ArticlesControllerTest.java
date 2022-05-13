@@ -107,4 +107,11 @@ public class ArticlesControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.article", Matchers.notNullValue(ArticleDto.class)));
     }
+
+    @Test
+    @WithAuthUser
+    void whenDeleteValidSlug_thenReturnVoid() throws Exception {
+        mockMvc.perform(delete("/articles/hello-world"))
+                .andExpect(status().isOk());
+    }
 }

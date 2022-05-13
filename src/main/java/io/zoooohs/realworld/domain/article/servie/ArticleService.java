@@ -9,4 +9,6 @@ public interface ArticleService {
     ArticleDto getArticle(final String slug, final UserDto.Auth authUser);
 
     ArticleDto updateArticle(final String slug, final ArticleDto.Update article, final UserDto.Auth authUser);
+
+    void deleteArticle(final String slug, final UserDto.Auth authUser);
 }

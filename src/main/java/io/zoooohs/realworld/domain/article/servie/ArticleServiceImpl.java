@@ -90,4 +90,11 @@ public class ArticleServiceImpl implements ArticleService {
         Boolean following = profileService.getProfile(found.getAuthor().getName(), authUser).getFollowing();
         return convertEntityToDto(found, false, 0L, following);
     }
+
+    @Transactional
+    @Override
+    public void deleteArticle(String slug, UserDto.Auth authUser) {
+        ArticleEntity found = articleRepository.findBySlug(slug).filter(entity -> entity.getAuthor().getId().equals(authUser.getId())).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
+        articleRepository.delete(found);
+    }
 }
