@@ -46,7 +46,17 @@ public class ArticleDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SingleArticle {
-        private ArticleDto article;
+    public static class SingleArticle<T> {
+        private T article;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Update {
+        private String title;
+        private String description;
+        private String body;
     }
 }

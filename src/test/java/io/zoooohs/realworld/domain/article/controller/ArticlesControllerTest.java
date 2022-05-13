@@ -20,11 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -97,4 +95,16 @@ public class ArticlesControllerTest {
                 .andExpect(jsonPath("$.article.slug", Matchers.is(slug)));
     }
 
+    @Test
+    @WithAuthUser
+    void whenPUTValidArticleForm_thenReturnUpdatedSingleArticle() throws Exception {
+        when(articleService.updateArticle(anyString(), any(ArticleDto.Update.class), any(UserDto.Auth.class))).thenReturn(article);
+
+        mockMvc.perform(put("/articles/hello-world")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(singleArticle))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.article", Matchers.notNullValue(ArticleDto.class)));
+    }
 }

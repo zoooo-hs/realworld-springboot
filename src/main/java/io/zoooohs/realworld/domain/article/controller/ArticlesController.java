@@ -16,12 +16,17 @@ public class ArticlesController {
     private final ArticleService articleService;
 
     @PostMapping
-    public ArticleDto.SingleArticle createArticle(@Valid @RequestBody ArticleDto.SingleArticle article, @AuthenticationPrincipal UserDto.Auth authUser) {
-       return ArticleDto.SingleArticle.builder().article(articleService.createArticle(article.getArticle(), authUser)).build();
+    public ArticleDto.SingleArticle<ArticleDto> createArticle(@Valid @RequestBody ArticleDto.SingleArticle<ArticleDto> article, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return new ArticleDto.SingleArticle<>(articleService.createArticle(article.getArticle(), authUser));
     }
 
     @GetMapping("/{slug}")
-    public ArticleDto.SingleArticle getArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
-        return ArticleDto.SingleArticle.builder().article(articleService.getArticle(slug, authUser)).build();
+    public ArticleDto.SingleArticle<ArticleDto> getArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return new ArticleDto.SingleArticle<>(articleService.getArticle(slug, authUser));
+    }
+
+    @PutMapping("/{slug}")
+    public ArticleDto.SingleArticle<ArticleDto> createArticle(@PathVariable String slug, @Valid @RequestBody ArticleDto.SingleArticle<ArticleDto.Update> article, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return new ArticleDto.SingleArticle<>(articleService.updateArticle(slug, article.getArticle(), authUser));
     }
 }

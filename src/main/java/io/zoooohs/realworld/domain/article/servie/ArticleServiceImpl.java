@@ -65,4 +65,29 @@ public class ArticleServiceImpl implements ArticleService {
                 .favoritesCount(favoritesCount)
                 .build();
     }
+
+    @Transactional
+    @Override
+    public ArticleDto updateArticle(String slug, ArticleDto.Update article, UserDto.Auth authUser) {
+        ArticleEntity found = articleRepository.findBySlug(slug).filter(entity -> entity.getAuthor().getId().equals(authUser.getId())).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
+
+        if (article.getTitle() != null) {
+            String newSlug = String.join("-", article.getTitle().split(" "));
+            found.setTitle(article.getTitle());
+            found.setSlug(newSlug);
+        }
+
+        if (article.getDescription() != null) {
+            found.setDescription(article.getDescription());
+        }
+
+        if (article.getBody() != null) {
+            found.setBody(article.getBody());
+        }
+
+        articleRepository.save(found);
+
+        Boolean following = profileService.getProfile(found.getAuthor().getName(), authUser).getFollowing();
+        return convertEntityToDto(found, false, 0L, following);
+    }
 }

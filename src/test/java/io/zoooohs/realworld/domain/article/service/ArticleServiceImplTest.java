@@ -107,4 +107,18 @@ public class ArticleServiceImplTest {
         assertEquals(slug, actual.getSlug());
         assertEquals("article title", actual.getTitle());
     }
+
+    @Test
+    void whenUpdateArticleWithNewTitle_thenReturnUpdatedSingleArticleWithUpdatedTitleAndSlug() {
+        String slug = "article-title";
+        ArticleDto.Update updateArticle = ArticleDto.Update.builder().title("new title").build();
+
+        when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
+        when(profileService.getProfile(eq(author.getName()), any(UserDto.Auth.class))).thenReturn(ProfileDto.builder().following(false).build());
+
+        ArticleDto actual = articleService.updateArticle(slug, updateArticle, authUser);
+
+        assertEquals(updateArticle.getTitle(), actual.getTitle());
+        assertEquals("new-title", actual.getSlug());
+    }
 }

@@ -40,6 +40,22 @@ public class ArticleEntity extends BaseEntity {
         this.author = author;
     }
 
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
     // TODO: need another relation model
 //    private List<String> tagList;
 //    private Boolean favorited;
