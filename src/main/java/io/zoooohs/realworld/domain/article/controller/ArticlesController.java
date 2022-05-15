@@ -34,4 +34,9 @@ public class ArticlesController {
     public void deleteArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
         articleService.deleteArticle(slug, authUser);
     }
+
+    @GetMapping("/feed")
+    public ArticleDto.MultipleArticle feedArticles(@AuthenticationPrincipal UserDto.Auth authUser) {
+       return ArticleDto.MultipleArticle.builder().articles(articleService.feedArticles(authUser)).build();
+    }
 }

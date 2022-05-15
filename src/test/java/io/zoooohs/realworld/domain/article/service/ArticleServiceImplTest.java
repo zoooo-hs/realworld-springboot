@@ -5,6 +5,8 @@ import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.servie.ArticleServiceImpl;
 import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
+import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
+import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
@@ -34,6 +36,10 @@ public class ArticleServiceImplTest {
 
     @Mock
     ProfileService profileService;
+
+    @Mock
+    FollowRepository followRepository;
+
     private ArticleDto article;
     private String expectedSlug;
     private UserEntity author;
@@ -42,7 +48,7 @@ public class ArticleServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        articleService = new ArticleServiceImpl(articleRepository, profileService);
+        articleService = new ArticleServiceImpl(articleRepository, followRepository, profileService);
         authUser = UserDto.Auth.builder()
                 .id(1L)
                 .email("email@email.com")
@@ -130,5 +136,16 @@ public class ArticleServiceImplTest {
         articleService.deleteArticle(slug, authUser);
 
         verify(articleRepository, times(1)).delete(any(ArticleEntity.class));
+    }
+
+    @Test
+    void whenValidUserFeed_thenReturnMultipleArticle() {
+        when(followRepository.findByFollowerId(eq(authUser.getId()))).thenReturn(List.of(FollowEntity.builder().followee(author).build()));
+        when(articleRepository.findByAuthorIdIn(anyList())).thenReturn(List.of(expectedArticle));
+
+        List<ArticleDto> actual = articleService.feedArticles(authUser);
+
+        assertEquals(1, actual.size());
+        assertTrue(actual.get(0).getAuthor().getFollowing());
     }
 }

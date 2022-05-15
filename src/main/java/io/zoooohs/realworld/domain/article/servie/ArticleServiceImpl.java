@@ -3,6 +3,9 @@ package io.zoooohs.realworld.domain.article.servie;
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
+import io.zoooohs.realworld.domain.common.entity.BaseEntity;
+import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
+import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
@@ -12,10 +15,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
     private final ArticleRepository articleRepository;
+    private final FollowRepository followRepository;
+
     private final ProfileService profileService;
 
     @Transactional
@@ -96,5 +104,11 @@ public class ArticleServiceImpl implements ArticleService {
     public void deleteArticle(String slug, UserDto.Auth authUser) {
         ArticleEntity found = articleRepository.findBySlug(slug).filter(entity -> entity.getAuthor().getId().equals(authUser.getId())).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
         articleRepository.delete(found);
+    }
+
+    @Override
+    public List<ArticleDto> feedArticles(UserDto.Auth authUser) {
+        List<Long> feedAuthorIds = followRepository.findByFollowerId(authUser.getId()).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
+        return articleRepository.findByAuthorIdIn(feedAuthorIds).stream().map(entity -> convertEntityToDto(entity, false, 0L, true)).collect(Collectors.toList());
     }
 }

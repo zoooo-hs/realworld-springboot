@@ -54,6 +54,14 @@ public class ArticleDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class MultipleArticle {
+        private List<ArticleDto> articles;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Update {
         private String title;
         private String description;

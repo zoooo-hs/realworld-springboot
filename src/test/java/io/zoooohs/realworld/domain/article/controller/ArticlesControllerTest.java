@@ -114,4 +114,24 @@ public class ArticlesControllerTest {
         mockMvc.perform(delete("/articles/hello-world"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @WithAuthUser
+    void whenValidUserFeed_thenReturnMultipleArticle() throws Exception {
+        article = ArticleDto.builder()
+                .title("article title")
+                .description("description")
+                .body("hi there")
+                .tagList(List.of("tag1", "tag2"))
+                .author(ArticleDto.Author.builder().following(true).build())
+                .build();
+
+        when(articleService.feedArticles(any(UserDto.Auth.class))).thenReturn(List.of(article));
+
+        mockMvc.perform(get("/articles/feed"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.articles", Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.articles[0]", Matchers.notNullValue(ArticleDto.class)))
+                .andExpect(jsonPath("$.articles[0].author.following", Matchers.is(true)));
+    }
 }
