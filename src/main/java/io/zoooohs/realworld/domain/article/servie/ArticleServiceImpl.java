@@ -2,6 +2,7 @@ package io.zoooohs.realworld.domain.article.servie;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
+import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.common.entity.BaseEntity;
 import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
@@ -12,6 +13,7 @@ import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.exception.AppException;
 import io.zoooohs.realworld.exception.Error;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,8 +109,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<ArticleDto> feedArticles(UserDto.Auth authUser) {
+    public List<ArticleDto> feedArticles(UserDto.Auth authUser, FeedParams feedParams) {
         List<Long> feedAuthorIds = followRepository.findByFollowerId(authUser.getId()).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
-        return articleRepository.findByAuthorIdIn(feedAuthorIds).stream().map(entity -> convertEntityToDto(entity, false, 0L, true)).collect(Collectors.toList());
+        return articleRepository.findByAuthorIdInOrderByCreatedAtDesc(feedAuthorIds, PageRequest.of(feedParams.getOffset(), feedParams.getLimit())).stream().map(entity -> convertEntityToDto(entity, false, 0L, true)).collect(Collectors.toList());
     }
 }

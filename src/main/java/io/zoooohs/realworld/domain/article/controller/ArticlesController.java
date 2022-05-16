@@ -1,6 +1,7 @@
 package io.zoooohs.realworld.domain.article.controller;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
+import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.servie.ArticleService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class ArticlesController {
     }
 
     @GetMapping("/feed")
-    public ArticleDto.MultipleArticle feedArticles(@AuthenticationPrincipal UserDto.Auth authUser) {
-       return ArticleDto.MultipleArticle.builder().articles(articleService.feedArticles(authUser)).build();
+    public ArticleDto.MultipleArticle feedArticles(@ModelAttribute @Valid FeedParams feedParams, @AuthenticationPrincipal UserDto.Auth authUser) {
+       return ArticleDto.MultipleArticle.builder().articles(articleService.feedArticles(authUser, feedParams)).build();
     }
 }

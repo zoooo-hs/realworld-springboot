@@ -2,6 +2,7 @@ package io.zoooohs.realworld.domain.article.service;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
+import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.servie.ArticleServiceImpl;
 import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
@@ -141,9 +142,11 @@ public class ArticleServiceImplTest {
     @Test
     void whenValidUserFeed_thenReturnMultipleArticle() {
         when(followRepository.findByFollowerId(eq(authUser.getId()))).thenReturn(List.of(FollowEntity.builder().followee(author).build()));
-        when(articleRepository.findByAuthorIdIn(anyList())).thenReturn(List.of(expectedArticle));
+        when(articleRepository.findByAuthorIdInOrderByCreatedAtDesc(anyList(), any())).thenReturn(List.of(expectedArticle));
 
-        List<ArticleDto> actual = articleService.feedArticles(authUser);
+        FeedParams feedParams = FeedParams.builder().offset(0).limit(1).build();
+
+        List<ArticleDto> actual = articleService.feedArticles(authUser, feedParams);
 
         assertEquals(1, actual.size());
         assertTrue(actual.get(0).getAuthor().getFollowing());

@@ -3,6 +3,7 @@ package io.zoooohs.realworld.domain.article.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zoooohs.realworld.configuration.WithAuthUser;
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
+import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.servie.ArticleService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.security.JWTAuthFilter;
@@ -126,12 +127,28 @@ public class ArticlesControllerTest {
                 .author(ArticleDto.Author.builder().following(true).build())
                 .build();
 
-        when(articleService.feedArticles(any(UserDto.Auth.class))).thenReturn(List.of(article));
+        when(articleService.feedArticles(any(UserDto.Auth.class), any())).thenReturn(List.of(article));
 
-        mockMvc.perform(get("/articles/feed"))
+        mockMvc.perform(get("/articles/feed")
+                        .param("limit", "1")
+                        .param("offset", "0")
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.articles", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$.articles[0]", Matchers.notNullValue(ArticleDto.class)))
                 .andExpect(jsonPath("$.articles[0].author.following", Matchers.is(true)));
+    }
+
+    @Test
+    @WithAuthUser
+    void whenPageIsNotValid_thenReturn() throws Exception {
+        mockMvc.perform(get("/articles/feed")
+                        .param("offset", "0")
+                )
+                .andExpect(status().isUnprocessableEntity());
+        mockMvc.perform(get("/articles/feed")
+                        .param("limit", "1")
+                )
+                .andExpect(status().isUnprocessableEntity());
     }
 }

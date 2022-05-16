@@ -1,6 +1,7 @@
 package io.zoooohs.realworld.domain.article.repository;
 
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,5 +15,5 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
     Optional<ArticleEntity> findBySlug(String slug);
 
     @EntityGraph("fetch-author")
-    List<ArticleEntity> findByAuthorIdIn(List<Long> feedAuthorIds);
+    List<ArticleEntity> findByAuthorIdInOrderByCreatedAtDesc(List<Long> feedAuthorIds, Pageable pageable);
 }

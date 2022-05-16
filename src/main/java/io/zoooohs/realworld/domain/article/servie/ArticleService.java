@@ -1,6 +1,7 @@
 package io.zoooohs.realworld.domain.article.servie;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
+import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 
 import java.util.List;
@@ -14,5 +15,5 @@ public interface ArticleService {
 
     void deleteArticle(final String slug, final UserDto.Auth authUser);
 
-    List<ArticleDto> feedArticles(final UserDto.Auth authUser);
+    List<ArticleDto> feedArticles(final UserDto.Auth authUser, final FeedParams feedParams);
 }
