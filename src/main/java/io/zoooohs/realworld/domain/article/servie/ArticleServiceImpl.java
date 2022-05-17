@@ -8,6 +8,7 @@ import io.zoooohs.realworld.domain.common.entity.BaseEntity;
 import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
 import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
+import io.zoooohs.realworld.domain.tag.entity.ArticleTagRelationEntity;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.exception.AppException;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,12 @@ public class ArticleServiceImpl implements ArticleService {
                 .body(article.getBody())
                 .author(author)
                 .build();
+        List<ArticleTagRelationEntity> tagList = new ArrayList<>();
+        for (String tag: article.getTagList()) {
+            tagList.add(ArticleTagRelationEntity.builder().article(articleEntity).tag(tag).build());
+        }
+        articleEntity.setTagList(tagList);
+
         articleEntity = articleRepository.save(articleEntity);
         return convertEntityToDto(articleEntity, false, 0L, false);
     }
@@ -73,6 +81,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .updatedAt(entity.getUpdatedAt())
                 .favorited(favorited)
                 .favoritesCount(favoritesCount)
+                .tagList(entity.getTagList().stream().map(ArticleTagRelationEntity::getTag).collect(Collectors.toList()))
                 .build();
     }
 

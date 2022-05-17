@@ -11,9 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
-    @EntityGraph("fetch-author")
+    @EntityGraph("fetch-author-tagList")
     Optional<ArticleEntity> findBySlug(String slug);
 
-    @EntityGraph("fetch-author")
+    @EntityGraph("fetch-author-tagList")
     List<ArticleEntity> findByAuthorIdInOrderByCreatedAtDesc(List<Long> feedAuthorIds, Pageable pageable);
 }

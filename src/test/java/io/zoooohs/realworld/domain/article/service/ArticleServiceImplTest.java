@@ -9,6 +9,7 @@ import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
 import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
+import io.zoooohs.realworld.domain.tag.entity.ArticleTagRelationEntity;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,6 +83,8 @@ public class ArticleServiceImplTest {
                 .author(author)
                 .build();
 
+        expectedArticle.setTagList(List.of(ArticleTagRelationEntity.builder().article(expectedArticle).tag("tag1").build(),ArticleTagRelationEntity.builder().article(expectedArticle).tag("tag2").build()));
+
         beforeWrite = LocalDateTime.now();
 
         expectedArticle.setCreatedAt(LocalDateTime.now());
@@ -100,6 +103,8 @@ public class ArticleServiceImplTest {
         assertTrue(beforeWrite.isBefore(actual.getUpdatedAt()));
         assertFalse(actual.getFavorited());
         assertEquals(0, actual.getFavoritesCount());
+        assertTrue(article.getTagList().contains(actual.getTagList().get(0)));
+        assertTrue(article.getTagList().contains(actual.getTagList().get(1)));
     }
 
     @Test
