@@ -4,6 +4,8 @@ import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,8 +14,10 @@ import java.util.Optional;
 @Repository
 public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
     @EntityGraph("fetch-author-tagList")
-    Optional<ArticleEntity> findBySlug(String slug);
+    @Query("SELECT a FROM ArticleEntity a LEFT JOIN FavoriteEntity f ON f.article.id = a.id WHERE a.slug = :slug")
+    Optional<ArticleEntity> findBySlug(@Param("slug") String slug);
 
     @EntityGraph("fetch-author-tagList")
-    List<ArticleEntity> findByAuthorIdInOrderByCreatedAtDesc(List<Long> feedAuthorIds, Pageable pageable);
+    @Query("SELECT a FROM ArticleEntity a LEFT JOIN FavoriteEntity f ON f.article.id = a.id WHERE a.author.id IN :ids ORDER BY a.createdAt DESC")
+    List<ArticleEntity> findByAuthorIdInOrderByCreatedAtDesc(@Param("ids") List<Long> ids, Pageable pageable);
 }

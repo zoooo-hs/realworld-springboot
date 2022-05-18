@@ -65,7 +65,10 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleDto getArticle(String slug, UserDto.Auth authUser) {
         ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
         Boolean following = profileService.getProfile(found.getAuthor().getName(), authUser).getFollowing();
-        return convertEntityToDto(found, false, 0L, following);
+        List<FavoriteEntity> favorites = found.getFavoriteList();
+        Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUser.getId()));
+        int favoriteCount = favorites.size();
+        return convertEntityToDto(found, favorited, (long) favoriteCount, following);
     }
 
     private ArticleDto convertEntityToDto(ArticleEntity entity, Boolean favorited, Long favoritesCount, Boolean following) {
@@ -109,8 +112,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         articleRepository.save(found);
 
-        Boolean following = profileService.getProfile(found.getAuthor().getName(), authUser).getFollowing();
-        return convertEntityToDto(found, false, 0L, following);
+        return getArticle(slug, authUser);
     }
 
     @Transactional
@@ -123,9 +125,15 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<ArticleDto> feedArticles(UserDto.Auth authUser, FeedParams feedParams) {
         List<Long> feedAuthorIds = followRepository.findByFollowerId(authUser.getId()).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
-        return articleRepository.findByAuthorIdInOrderByCreatedAtDesc(feedAuthorIds, PageRequest.of(feedParams.getOffset(), feedParams.getLimit())).stream().map(entity -> convertEntityToDto(entity, false, 0L, true)).collect(Collectors.toList());
+        return articleRepository.findByAuthorIdInOrderByCreatedAtDesc(feedAuthorIds, PageRequest.of(feedParams.getOffset(), feedParams.getLimit())).stream().map(entity -> {
+            List<FavoriteEntity> favorites = entity.getFavoriteList();
+            Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUser.getId()));
+            int favoriteCount = favorites.size();
+            return convertEntityToDto(entity, favorited, (long) favoriteCount, true);
+        }).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public ArticleDto favoriteArticle(String slug, UserDto.Auth authUser) {
         ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
@@ -139,11 +147,6 @@ public class ArticleServiceImpl implements ArticleService {
                 .build();
         favoriteRepository.save(favorite);
 
-        // TODO: do in get single article
-        boolean favorited = true;
-        int favoriteCount = favoriteRepository.findByArticleId(found.getId()).size();
-        Boolean following = profileService.getProfile(found.getAuthor().getName(), authUser).getFollowing();
-
-        return convertEntityToDto(found, favorited, (long) favoriteCount, following);
+        return getArticle(slug, authUser);
     }
 }

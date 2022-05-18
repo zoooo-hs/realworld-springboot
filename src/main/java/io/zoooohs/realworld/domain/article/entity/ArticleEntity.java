@@ -6,12 +6,14 @@ import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "articles")
@@ -36,6 +38,9 @@ public class ArticleEntity extends BaseEntity {
     @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ArticleTagRelationEntity> tagList;
 
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<FavoriteEntity> favoriteList;
+
     @Builder
     public ArticleEntity(Long id, String slug, String title, String description, String body, UserEntity author) {
         this.id = id;
@@ -46,29 +51,4 @@ public class ArticleEntity extends BaseEntity {
         this.author = author;
         this.tagList = new ArrayList<>();
     }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public void setTagList(List<ArticleTagRelationEntity> tagList) {
-        this.tagList = tagList;
-    }
-
-    // TODO: need another relation model
-//    private Boolean favorited;
-//    private Long favoritesCount;
-
 }

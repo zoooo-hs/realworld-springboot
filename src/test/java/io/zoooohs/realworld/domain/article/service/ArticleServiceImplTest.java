@@ -18,7 +18,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -91,6 +93,7 @@ public class ArticleServiceImplTest {
                 .build();
 
         expectedArticle.setTagList(List.of(ArticleTagRelationEntity.builder().article(expectedArticle).tag("tag1").build(),ArticleTagRelationEntity.builder().article(expectedArticle).tag("tag2").build()));
+        expectedArticle.setFavoriteList(List.of());
 
         beforeWrite = LocalDateTime.now();
 
@@ -167,8 +170,20 @@ public class ArticleServiceImplTest {
     @Test
     void whenFavoriteArticle_thenReturnArticleWithUpdatedFavorite() {
         Long favoritesCount = article.getFavoritesCount();
-        when(articleRepository.findBySlug(eq(expectedArticle.getSlug()))).thenReturn(Optional.ofNullable(expectedArticle));
-        when(favoriteRepository.findByArticleId(any())).thenReturn(List.of(FavoriteEntity.builder().build()));
+        when(articleRepository.findBySlug(eq(expectedArticle.getSlug())))
+                .thenAnswer(new Answer<>() {
+                    int count = 0;
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        if (count == 0) {
+                            count += 1;
+                            return Optional.ofNullable(expectedArticle);
+                        } else {
+                            expectedArticle.setFavoriteList(List.of(FavoriteEntity.builder().article(expectedArticle).user(UserEntity.builder().id(authUser.getId()).build()).build()));
+                            return Optional.ofNullable(expectedArticle);
+                        }
+                    }
+                });
         when(profileService.getProfile(eq(author.getName()), any(UserDto.Auth.class))).thenReturn(ProfileDto.builder().following(false).build());
 
 
