@@ -3,7 +3,6 @@ package io.zoooohs.realworld.domain.article.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zoooohs.realworld.configuration.WithAuthUser;
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
-import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.servie.ArticleService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.security.JWTAuthFilter;
@@ -150,5 +149,18 @@ public class ArticlesControllerTest {
                         .param("limit", "1")
                 )
                 .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @WithAuthUser
+    void whenFavoriteArticle_thenReturnArticleWithUpdatedFavorite() throws Exception {
+        article.setFavorited(true);
+        when(articleService.favoriteArticle(eq("some-slug"), any(UserDto.Auth.class))).thenReturn(article);
+
+        mockMvc.perform(post("/articles/some-slug/favorite")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.article", Matchers.notNullValue(ArticleDto.class)))
+                .andExpect(jsonPath("$.article.favorited", Matchers.is(true)));
     }
 }

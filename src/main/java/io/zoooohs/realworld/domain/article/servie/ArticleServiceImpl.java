@@ -2,8 +2,10 @@ package io.zoooohs.realworld.domain.article.servie;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
+import io.zoooohs.realworld.domain.article.entity.FavoriteEntity;
 import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
+import io.zoooohs.realworld.domain.article.repository.FavoriteRepository;
 import io.zoooohs.realworld.domain.common.entity.BaseEntity;
 import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
 import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class ArticleServiceImpl implements ArticleService {
     private final ArticleRepository articleRepository;
     private final FollowRepository followRepository;
+    private final FavoriteRepository favoriteRepository;
 
     private final ProfileService profileService;
 
@@ -121,5 +124,26 @@ public class ArticleServiceImpl implements ArticleService {
     public List<ArticleDto> feedArticles(UserDto.Auth authUser, FeedParams feedParams) {
         List<Long> feedAuthorIds = followRepository.findByFollowerId(authUser.getId()).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
         return articleRepository.findByAuthorIdInOrderByCreatedAtDesc(feedAuthorIds, PageRequest.of(feedParams.getOffset(), feedParams.getLimit())).stream().map(entity -> convertEntityToDto(entity, false, 0L, true)).collect(Collectors.toList());
+    }
+
+    @Override
+    public ArticleDto favoriteArticle(String slug, UserDto.Auth authUser) {
+        ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
+
+        favoriteRepository.findByArticleIdAndUserId(found.getId(), authUser.getId())
+                .ifPresent(favoriteEntity -> { throw new AppException(Error.ALREADY_FAVORITED_ARTICLE);});
+
+        FavoriteEntity favorite = FavoriteEntity.builder()
+                .article(found)
+                .user(UserEntity.builder().id(authUser.getId()).build())
+                .build();
+        favoriteRepository.save(favorite);
+
+        // TODO: do in get single article
+        boolean favorited = true;
+        int favoriteCount = favoriteRepository.findByArticleId(found.getId()).size();
+        Boolean following = profileService.getProfile(found.getAuthor().getName(), authUser).getFollowing();
+
+        return convertEntityToDto(found, favorited, (long) favoriteCount, following);
     }
 }

@@ -40,4 +40,9 @@ public class ArticlesController {
     public ArticleDto.MultipleArticle feedArticles(@ModelAttribute @Valid FeedParams feedParams, @AuthenticationPrincipal UserDto.Auth authUser) {
        return ArticleDto.MultipleArticle.builder().articles(articleService.feedArticles(authUser, feedParams)).build();
     }
+
+    @PostMapping("/{slug}/favorite")
+    public ArticleDto.SingleArticle<ArticleDto> favoriteArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return new ArticleDto.SingleArticle<>(articleService.favoriteArticle(slug, authUser));
+    }
 }

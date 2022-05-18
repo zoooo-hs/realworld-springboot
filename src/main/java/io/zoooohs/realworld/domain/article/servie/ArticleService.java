@@ -16,4 +16,6 @@ public interface ArticleService {
     void deleteArticle(final String slug, final UserDto.Auth authUser);
 
     List<ArticleDto> feedArticles(final UserDto.Auth authUser, final FeedParams feedParams);
+
+    ArticleDto favoriteArticle(final String slug, final UserDto.Auth authUser);
 }

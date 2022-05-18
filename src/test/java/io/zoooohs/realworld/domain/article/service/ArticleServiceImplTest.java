@@ -2,8 +2,10 @@ package io.zoooohs.realworld.domain.article.service;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
+import io.zoooohs.realworld.domain.article.entity.FavoriteEntity;
 import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
+import io.zoooohs.realworld.domain.article.repository.FavoriteRepository;
 import io.zoooohs.realworld.domain.article.servie.ArticleServiceImpl;
 import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
@@ -42,6 +44,9 @@ public class ArticleServiceImplTest {
     @Mock
     FollowRepository followRepository;
 
+    @Mock
+    FavoriteRepository favoriteRepository;
+
     private ArticleDto article;
     private String expectedSlug;
     private UserEntity author;
@@ -50,7 +55,7 @@ public class ArticleServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        articleService = new ArticleServiceImpl(articleRepository, followRepository, profileService);
+        articleService = new ArticleServiceImpl(articleRepository, followRepository, favoriteRepository, profileService);
         authUser = UserDto.Auth.builder()
                 .id(1L)
                 .email("email@email.com")
@@ -63,6 +68,8 @@ public class ArticleServiceImplTest {
                 .description("description")
                 .body("hi there")
                 .tagList(List.of("tag1", "tag2"))
+                .favoritesCount(0L)
+                .favorited(false)
                 .build();
 
         expectedSlug = String.join("-", article.getTitle().split(" "));
@@ -155,5 +162,19 @@ public class ArticleServiceImplTest {
 
         assertEquals(1, actual.size());
         assertTrue(actual.get(0).getAuthor().getFollowing());
+    }
+
+    @Test
+    void whenFavoriteArticle_thenReturnArticleWithUpdatedFavorite() {
+        Long favoritesCount = article.getFavoritesCount();
+        when(articleRepository.findBySlug(eq(expectedArticle.getSlug()))).thenReturn(Optional.ofNullable(expectedArticle));
+        when(favoriteRepository.findByArticleId(any())).thenReturn(List.of(FavoriteEntity.builder().build()));
+        when(profileService.getProfile(eq(author.getName()), any(UserDto.Auth.class))).thenReturn(ProfileDto.builder().following(false).build());
+
+
+        ArticleDto actual = articleService.favoriteArticle(expectedArticle.getSlug(), authUser);
+
+        assertTrue(actual.getFavorited());
+        assertTrue(favoritesCount < actual.getFavoritesCount());
     }
 }
