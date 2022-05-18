@@ -163,4 +163,17 @@ public class ArticlesControllerTest {
                 .andExpect(jsonPath("$.article", Matchers.notNullValue(ArticleDto.class)))
                 .andExpect(jsonPath("$.article.favorited", Matchers.is(true)));
     }
+
+    @Test
+    @WithAuthUser
+    void whenUnfavoriteArticle_thenReturnArticleWithUpdatedFavorite() throws Exception {
+        article.setFavorited(false);
+        when(articleService.unfavoriteArticle(eq("some-slug"), any(UserDto.Auth.class))).thenReturn(article);
+
+        mockMvc.perform(delete("/articles/some-slug/favorite")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.article", Matchers.notNullValue(ArticleDto.class)))
+                .andExpect(jsonPath("$.article.favorited", Matchers.is(false)));
+    }
 }

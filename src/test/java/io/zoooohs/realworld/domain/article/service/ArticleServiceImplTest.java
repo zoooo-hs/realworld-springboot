@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -191,5 +192,32 @@ public class ArticleServiceImplTest {
 
         assertTrue(actual.getFavorited());
         assertTrue(favoritesCount < actual.getFavoritesCount());
+    }
+
+    @Test
+    void whenUnfavoriteArticle_thenReturnArticleWithUpdatedFavorite() {
+        Long favoritesCount = 1L;
+        when(articleRepository.findBySlug(eq(expectedArticle.getSlug())))
+                .thenAnswer(new Answer<>() {
+                    int count = 0;
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        if (count == 0) {
+                            count += 1;
+                            List<FavoriteEntity> favoriteEntities = new ArrayList<>();
+                            favoriteEntities.add(FavoriteEntity.builder().article(expectedArticle).user(UserEntity.builder().id(authUser.getId()).build()).build());
+                            expectedArticle.setFavoriteList(favoriteEntities);
+                        } else {
+                            expectedArticle.setFavoriteList(List.of());
+                        }
+                        return Optional.ofNullable(expectedArticle);
+                    }
+                });
+        when(profileService.getProfile(eq(author.getName()), any(UserDto.Auth.class))).thenReturn(ProfileDto.builder().following(false).build());
+
+        ArticleDto actual = articleService.unfavoriteArticle(expectedArticle.getSlug(), authUser);
+
+        assertFalse(actual.getFavorited());
+        assertTrue(favoritesCount > actual.getFavoritesCount());
     }
 }

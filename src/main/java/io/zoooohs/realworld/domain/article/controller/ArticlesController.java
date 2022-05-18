@@ -45,4 +45,9 @@ public class ArticlesController {
     public ArticleDto.SingleArticle<ArticleDto> favoriteArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
         return new ArticleDto.SingleArticle<>(articleService.favoriteArticle(slug, authUser));
     }
+
+    @DeleteMapping("/{slug}/favorite")
+    public ArticleDto.SingleArticle<ArticleDto> unfavoriteArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return new ArticleDto.SingleArticle<>(articleService.unfavoriteArticle(slug, authUser));
+    }
 }

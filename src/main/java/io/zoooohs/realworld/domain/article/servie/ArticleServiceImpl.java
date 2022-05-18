@@ -149,4 +149,16 @@ public class ArticleServiceImpl implements ArticleService {
 
         return getArticle(slug, authUser);
     }
+
+    @Transactional
+    @Override
+    public ArticleDto unfavoriteArticle(String slug, UserDto.Auth authUser) {
+        ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
+        FavoriteEntity favorite = found.getFavoriteList().stream()
+                .filter(favoriteEntity -> favoriteEntity.getArticle().getId().equals(found.getId())
+                        && favoriteEntity.getUser().getId().equals(authUser.getId())).findAny()
+                .orElseThrow(() -> new AppException(Error.FAVORITE_NOT_FOUND));
+        found.getFavoriteList().remove(favorite); // cascade REMOVE
+        return getArticle(slug, authUser);
+    }
 }

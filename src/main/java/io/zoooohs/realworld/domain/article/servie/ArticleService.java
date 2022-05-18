@@ -18,4 +18,6 @@ public interface ArticleService {
     List<ArticleDto> feedArticles(final UserDto.Auth authUser, final FeedParams feedParams);
 
     ArticleDto favoriteArticle(final String slug, final UserDto.Auth authUser);
+
+    ArticleDto unfavoriteArticle(final String slug, final UserDto.Auth authUser);
 }
