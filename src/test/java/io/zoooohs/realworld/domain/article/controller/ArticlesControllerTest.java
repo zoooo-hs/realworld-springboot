@@ -9,6 +9,9 @@ import io.zoooohs.realworld.security.JWTAuthFilter;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,8 +20,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -56,6 +61,7 @@ public class ArticlesControllerTest {
                 .description("description")
                 .body("hi there")
                 .tagList(List.of("tag1", "tag2"))
+                .author(ArticleDto.Author.builder().name("username").build())
                 .build();
         singleArticle = ArticleDto.SingleArticle.builder().article(article).build();
         slug = "article-title";
@@ -175,5 +181,35 @@ public class ArticlesControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.article", Matchers.notNullValue(ArticleDto.class)))
                 .andExpect(jsonPath("$.article.favorited", Matchers.is(false)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("articleQueries")
+    @WithAuthUser
+    void whenQueryArticles_thenReturnArticles(String key, String value) throws Exception {
+        when(articleService.listArticle(any(), any())).thenReturn(List.of(article));
+
+        ResultActions result =  mockMvc.perform(get("/articles")
+                        .param("limit", "1")
+                        .param("offset", "0")
+                        .param(key, value)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.articles", Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.articles[0]", Matchers.notNullValue(ArticleDto.class)));
+
+        if (key.equals("tag")) {
+            result.andExpect(jsonPath("$.articles[0].tagList[0]", Matchers.is(value)));
+        } else if (key.equals("author")) {
+            result.andExpect(jsonPath("$.articles[0].author.username", Matchers.is(value)));
+        }
+    }
+
+    public static Stream<Arguments> articleQueries() {
+        return Stream.of(
+                Arguments.of("tag", "tag1"),
+                Arguments.of("author", "username"),
+                Arguments.of("favorited", "username")
+        );
     }
 }

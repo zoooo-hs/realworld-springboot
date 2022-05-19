@@ -1,6 +1,7 @@
 package io.zoooohs.realworld.domain.article.controller;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
+import io.zoooohs.realworld.domain.article.model.ArticleQueryParam;
 import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.servie.ArticleService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
@@ -49,5 +50,10 @@ public class ArticlesController {
     @DeleteMapping("/{slug}/favorite")
     public ArticleDto.SingleArticle<ArticleDto> unfavoriteArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
         return new ArticleDto.SingleArticle<>(articleService.unfavoriteArticle(slug, authUser));
+    }
+
+    @GetMapping
+    public ArticleDto.MultipleArticle listArticles(@ModelAttribute ArticleQueryParam articleQueryParam, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return ArticleDto.MultipleArticle.builder().articles(articleService.listArticle(articleQueryParam, authUser)).build();
     }
 }

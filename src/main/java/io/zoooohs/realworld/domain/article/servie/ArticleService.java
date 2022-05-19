@@ -1,6 +1,7 @@
 package io.zoooohs.realworld.domain.article.servie;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
+import io.zoooohs.realworld.domain.article.model.ArticleQueryParam;
 import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 
@@ -20,4 +21,6 @@ public interface ArticleService {
     ArticleDto favoriteArticle(final String slug, final UserDto.Auth authUser);
 
     ArticleDto unfavoriteArticle(final String slug, final UserDto.Auth authUser);
+
+    List<ArticleDto> listArticle(final ArticleQueryParam articleQueryParam, final UserDto.Auth authUser);
 }

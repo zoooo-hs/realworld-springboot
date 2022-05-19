@@ -3,6 +3,7 @@ package io.zoooohs.realworld.domain.article.servie;
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
 import io.zoooohs.realworld.domain.article.entity.FavoriteEntity;
+import io.zoooohs.realworld.domain.article.model.ArticleQueryParam;
 import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.repository.FavoriteRepository;
@@ -17,6 +18,7 @@ import io.zoooohs.realworld.exception.AppException;
 import io.zoooohs.realworld.exception.Error;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -160,5 +162,40 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new AppException(Error.FAVORITE_NOT_FOUND));
         found.getFavoriteList().remove(favorite); // cascade REMOVE
         return getArticle(slug, authUser);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ArticleDto> listArticle(ArticleQueryParam articleQueryParam, UserDto.Auth authUser) {
+        Pageable pageable = null;
+        if (articleQueryParam.getOffset() != null) {
+            pageable = PageRequest.of(articleQueryParam.getOffset(), articleQueryParam.getLimit());
+        }
+
+        List<ArticleEntity> articleEntities;
+        if (articleQueryParam.getTag() != null) {
+            articleEntities = articleRepository.findByTag(articleQueryParam.getTag(), pageable);
+        } else if  (articleQueryParam.getAuthor() != null) {
+            articleEntities = articleRepository.findByAuthorName(articleQueryParam.getAuthor(), pageable);
+        } else if (articleQueryParam.getFavorited() != null) {
+            articleEntities = articleRepository.findByFavoritedUsername(articleQueryParam.getFavorited(), pageable);
+        } else {
+            articleEntities = articleRepository.findListByPaging(pageable);
+        }
+
+        return convertToArticleList(articleEntities, authUser);
+    }
+
+    private List<ArticleDto> convertToArticleList(List<ArticleEntity> articleEntities, UserDto.Auth authUser) {
+        List<Long> authorIds = articleEntities.stream().map(ArticleEntity::getAuthor).map(BaseEntity::getId).collect(Collectors.toList());
+        List<Long> followeeIds = followRepository.findByFollowerIdAndFolloweeIdIn(authUser.getId(), authorIds).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
+
+        return articleEntities.stream().map(entity -> {
+            List<FavoriteEntity> favorites = entity.getFavoriteList();
+            Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUser.getId()));
+            int favoriteCount = favorites.size();
+            Boolean following = followeeIds.stream().anyMatch(followeeId -> followeeId.equals(entity.getAuthor().getId()));
+            return convertEntityToDto(entity, favorited, (long) favoriteCount, following);
+        }).collect(Collectors.toList());
     }
 }

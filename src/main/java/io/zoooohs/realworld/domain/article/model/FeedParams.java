@@ -10,11 +10,11 @@ import javax.validation.constraints.AssertTrue;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FeedParams {
-    private Integer offset;
-    private Integer limit;
+    protected Integer offset;
+    protected Integer limit;
 
     @AssertTrue
-    private boolean getValidPage() {
+    protected boolean getValidPage() {
         return (offset != null && limit != null) || (offset == null && limit == null);
     }
 }

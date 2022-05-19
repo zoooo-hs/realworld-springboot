@@ -3,6 +3,7 @@ package io.zoooohs.realworld.domain.article.service;
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
 import io.zoooohs.realworld.domain.article.entity.FavoriteEntity;
+import io.zoooohs.realworld.domain.article.model.ArticleQueryParam;
 import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.repository.FavoriteRepository;
@@ -219,5 +220,43 @@ public class ArticleServiceImplTest {
 
         assertFalse(actual.getFavorited());
         assertTrue(favoritesCount > actual.getFavoritesCount());
+    }
+
+    @Test
+    void whenQueryArticlesByTag_thenReturnArticles() {
+        ArticleQueryParam query = new ArticleQueryParam();
+        query.setTag("tag1");
+
+        when(articleRepository.findByTag(eq("tag1"), any())).thenReturn(List.of(expectedArticle));
+
+        List<ArticleDto> actual = articleService.listArticle(query, authUser);
+
+        assertTrue(actual.get(0).getTagList().contains("tag1"));
+    }
+
+    @Test
+    void whenQueryArticlesByAuthorName_thenReturnArticles() {
+        ArticleQueryParam query = new ArticleQueryParam();
+        query.setAuthor("testUser");
+
+        when(articleRepository.findByAuthorName(eq("testUser"), any())).thenReturn(List.of(expectedArticle));
+
+        List<ArticleDto> actual = articleService.listArticle(query, authUser);
+
+        assertEquals("testUser", actual.get(0).getAuthor().getName());
+    }
+
+    @Test
+    void whenQueryArticlesByFavorited_thenReturnArticles() {
+        ArticleQueryParam query = new ArticleQueryParam();
+        query.setFavorited("username");
+
+        expectedArticle.setFavoriteList(List.of(FavoriteEntity.builder().user(UserEntity.builder().id(1L).name("username").build()).build()));
+
+        when(articleRepository.findByFavoritedUsername(eq("username"), any())).thenReturn(List.of(expectedArticle));
+
+        List<ArticleDto> actual = articleService.listArticle(query, authUser);
+
+        assertTrue(actual.size() > 0);
     }
 }
