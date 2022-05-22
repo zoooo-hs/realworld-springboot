@@ -66,4 +66,9 @@ public class ArticlesController {
                 .comment(commentService.addCommentsToAnArticle(slug, comment.getComment(), authUser))
                 .build();
     }
+
+    @DeleteMapping("/{slug}/comments/{commentId}")
+    public void deleteComment(@PathVariable("slug") String slug, @PathVariable("commentId") Long commentId, @AuthenticationPrincipal UserDto.Auth authUser) {
+        commentService.delete(slug, commentId, authUser);
+    }
 }

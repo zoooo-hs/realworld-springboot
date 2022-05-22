@@ -6,12 +6,14 @@ import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
 import io.zoooohs.realworld.domain.article.entity.CommentEntity;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.repository.CommentRepository;
+import io.zoooohs.realworld.domain.common.entity.BaseEntity;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.exception.AppException;
 import io.zoooohs.realworld.exception.Error;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class CommentServiceImpl implements CommentService {
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
 
+    @Transactional
     @Override
     public CommentDto addCommentsToAnArticle(String slug, CommentDto comment, UserDto.Auth authUser) {
         ArticleEntity articleEntity = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
@@ -47,5 +50,17 @@ public class CommentServiceImpl implements CommentService {
                         .following(false)
                         .build())
                 .build();
+    }
+
+    @Transactional
+    @Override
+    public void delete(String slug, Long commentId, UserDto.Auth authUser) {
+        Long articleId = articleRepository.findBySlug(slug).map(BaseEntity::getId).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
+
+        CommentEntity commentEntity = commentRepository.findById(commentId)
+                .filter(comment -> comment.getArticle().getId().equals(articleId))
+                .orElseThrow(() -> new AppException(Error.COMMENT_NOT_FOUND));
+
+        commentRepository.delete(commentEntity);
     }
 }

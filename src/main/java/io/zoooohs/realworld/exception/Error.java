@@ -14,6 +14,7 @@ public enum Error {
     FOLLOW_NOT_FOUND("such follow not found", HttpStatus.NOT_FOUND),
     ARTICLE_NOT_FOUND("article not found", HttpStatus.NOT_FOUND),
     FAVORITE_NOT_FOUND("favorite not found", HttpStatus.NOT_FOUND),
+    COMMENT_NOT_FOUND("comment not found", HttpStatus.NOT_FOUND),
     ;
 
     private final String message;

@@ -245,4 +245,11 @@ public class ArticlesControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.comment", Matchers.notNullValue(CommentDto.class)));
     }
+
+    @Test
+    @WithAuthUser
+    void whenDeleteCommentIdArticleSlug_thenDelete() throws Exception {
+        mockMvc.perform(delete("/articles/some-slug/comments/1"))
+                .andExpect(status().isOk());
+    }
 }
