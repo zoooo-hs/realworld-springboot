@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -26,5 +27,13 @@ public class CommentDto {
     @AllArgsConstructor
     public static class SingleComment {
         CommentDto comment;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MultipleComments {
+        List<CommentDto> comments;
     }
 }

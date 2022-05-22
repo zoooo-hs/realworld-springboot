@@ -71,4 +71,11 @@ public class ArticlesController {
     public void deleteComment(@PathVariable("slug") String slug, @PathVariable("commentId") Long commentId, @AuthenticationPrincipal UserDto.Auth authUser) {
         commentService.delete(slug, commentId, authUser);
     }
+
+    @GetMapping("/{slug}/comments")
+    public CommentDto.MultipleComments getCommentsFromAnArticle(@PathVariable String slug, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return CommentDto.MultipleComments.builder()
+                .comments(commentService.getCommentsBySlug(slug, authUser))
+                .build();
+    }
 }

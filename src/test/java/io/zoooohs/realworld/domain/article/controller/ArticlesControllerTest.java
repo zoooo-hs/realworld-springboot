@@ -252,4 +252,15 @@ public class ArticlesControllerTest {
         mockMvc.perform(delete("/articles/some-slug/comments/1"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @WithAuthUser
+    void whenGetArticleCommentsBySlug_thenReturnComments() throws Exception {
+        when(commentService.getCommentsBySlug(anyString(), any(UserDto.Auth.class)))
+                .thenReturn(List.of(CommentDto.builder().build()));
+
+        mockMvc.perform(get("/articles/some-slug/comments"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.comments[0]", Matchers.notNullValue(CommentDto.class)));
+    }
 }

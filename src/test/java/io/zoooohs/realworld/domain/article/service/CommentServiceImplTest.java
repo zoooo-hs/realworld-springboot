@@ -7,6 +7,7 @@ import io.zoooohs.realworld.domain.article.entity.CommentEntity;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.repository.CommentRepository;
 import io.zoooohs.realworld.domain.article.servie.CommentServiceImpl;
+import io.zoooohs.realworld.domain.profile.service.ProfileService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,8 @@ public class CommentServiceImplTest {
     ArticleRepository articleRepository;
     @Mock
     CommentRepository commentRepository;
+    @Mock
+    ProfileService profileService;
 
     UserDto.Auth authUser;
     ArticleDto article;
@@ -41,7 +44,7 @@ public class CommentServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        commentService = new CommentServiceImpl(articleRepository, commentRepository);
+        commentService = new CommentServiceImpl(articleRepository, commentRepository, profileService);
 
         authUser = UserDto.Auth.builder()
                 .id(1L)

@@ -15,6 +15,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "comments")
+@NamedEntityGraph(name = "fetch-author", attributeNodes = @NamedAttributeNode("author"))
 public class CommentEntity extends BaseEntity {
     @Column(nullable = false)
     private String body;
