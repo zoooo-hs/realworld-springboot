@@ -1,9 +1,11 @@
 package io.zoooohs.realworld.domain.article.controller;
 
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
+import io.zoooohs.realworld.domain.article.dto.CommentDto;
 import io.zoooohs.realworld.domain.article.model.ArticleQueryParam;
 import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.servie.ArticleService;
+import io.zoooohs.realworld.domain.article.servie.CommentService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +18,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class ArticlesController {
     private final ArticleService articleService;
+    private final CommentService commentService;
 
     @PostMapping
     public ArticleDto.SingleArticle<ArticleDto> createArticle(@Valid @RequestBody ArticleDto.SingleArticle<ArticleDto> article, @AuthenticationPrincipal UserDto.Auth authUser) {
@@ -55,5 +58,12 @@ public class ArticlesController {
     @GetMapping
     public ArticleDto.MultipleArticle listArticles(@ModelAttribute ArticleQueryParam articleQueryParam, @AuthenticationPrincipal UserDto.Auth authUser) {
         return ArticleDto.MultipleArticle.builder().articles(articleService.listArticle(articleQueryParam, authUser)).build();
+    }
+
+    @PostMapping("/{slug}/comments")
+    public CommentDto.SingleComment addCommentsToAnArticle(@PathVariable String slug, @RequestBody @Valid CommentDto.SingleComment comment, @AuthenticationPrincipal UserDto.Auth authUser) {
+        return CommentDto.SingleComment.builder()
+                .comment(commentService.addCommentsToAnArticle(slug, comment.getComment(), authUser))
+                .build();
     }
 }
