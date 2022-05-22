@@ -3,7 +3,9 @@ package io.zoooohs.realworld.domain.article.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zoooohs.realworld.configuration.WithAuthUser;
 import io.zoooohs.realworld.domain.article.dto.ArticleDto;
+import io.zoooohs.realworld.domain.article.dto.CommentDto;
 import io.zoooohs.realworld.domain.article.servie.ArticleService;
+import io.zoooohs.realworld.domain.article.servie.CommentService;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.security.JWTAuthFilter;
 import org.hamcrest.Matchers;
@@ -22,6 +24,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -49,6 +52,10 @@ public class ArticlesControllerTest {
     @MockBean
     ArticleService articleService;
 
+    @MockBean
+    CommentService commentService;
+
+    private ArticleDto.Author author;
     private ArticleDto article;
     private ArticleDto.SingleArticle singleArticle;
     private String slug;
@@ -56,12 +63,13 @@ public class ArticlesControllerTest {
 
     @BeforeEach
     void setUp() {
+        author =  ArticleDto.Author.builder().name("username").build();
         article = ArticleDto.builder()
                 .title("article title")
                 .description("description")
                 .body("hi there")
                 .tagList(List.of("tag1", "tag2"))
-                .author(ArticleDto.Author.builder().name("username").build())
+                .author(author)
                 .build();
         singleArticle = ArticleDto.SingleArticle.builder().article(article).build();
         slug = "article-title";
@@ -211,5 +219,48 @@ public class ArticlesControllerTest {
                 Arguments.of("author", "username"),
                 Arguments.of("favorited", "username")
         );
+    }
+
+    @Test
+    @WithAuthUser
+    void whenPostCommentForArticleSlug_thenReturnComment() throws Exception {
+        CommentDto comment = CommentDto.builder()
+                .body("hello world")
+                .build();
+
+        CommentDto result = CommentDto.builder()
+                .id(1L)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .author(author)
+                .body("hello world")
+                .build();
+
+
+        when(commentService.addCommentsToAnArticle(anyString(), any(), any(UserDto.Auth.class))).thenReturn(result);
+
+        mockMvc.perform(post("/articles/some-slug/comments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(comment)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.comment", Matchers.notNullValue(CommentDto.class)));
+    }
+
+    @Test
+    @WithAuthUser
+    void whenDeleteCommentIdArticleSlug_thenDelete() throws Exception {
+        mockMvc.perform(delete("/articles/some-slug/comments/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAuthUser
+    void whenGetArticleCommentsBySlug_thenReturnComments() throws Exception {
+        when(commentService.getCommentsBySlug(anyString(), any(UserDto.Auth.class)))
+                .thenReturn(List.of(CommentDto.builder().build()));
+
+        mockMvc.perform(get("/articles/some-slug/comments"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.comments[0]", Matchers.notNullValue(CommentDto.class)));
     }
 }
