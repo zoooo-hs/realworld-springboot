@@ -28,6 +28,7 @@ public class ArticleDto {
     private Long favoritesCount;
     private Author author;
 
+    // TODO: ProfileDTO 통합 필요
     @Getter
     @Builder
     @NoArgsConstructor

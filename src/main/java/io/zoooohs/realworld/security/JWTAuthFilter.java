@@ -16,6 +16,7 @@ public class JWTAuthFilter extends GenericFilter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        // TODO: request에서 jwt 추출하고 username까지 한번에 추출하고 username == null이면 dofilter
         String jwt = jwtUtils.resolveToken(request);
         if (jwt != null && jwtUtils.validateToken(jwt)) {
             String username = jwtUtils.getSub(jwt);

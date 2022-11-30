@@ -15,6 +15,11 @@ public class AuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
 
+    /**
+     * TODO:
+     * userDetailService -> authority 를 찾는 용도로만 사용하는게 좋을 것 같음 authentication에는 userid만 들어가도록하고, authority만따로 보내도록
+     *  --> UserEntity에 UserDetail내용 빼기
+     */
     public Authentication getAuthentication(String username) {
         UserDetails userDetail = userDetailsService.loadUserByUsername(username);
         if (userDetail == null) return null;

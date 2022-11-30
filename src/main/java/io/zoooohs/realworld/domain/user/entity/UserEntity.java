@@ -13,12 +13,14 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.Collection;
 
+// TODO: UserDetails 제거하기
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class UserEntity extends BaseEntity implements UserDetails {
+    // TODO: name ->  username으로 변경
     @Column(nullable = false, unique = true)
     private String name;
     @Column(nullable = false, unique = true)

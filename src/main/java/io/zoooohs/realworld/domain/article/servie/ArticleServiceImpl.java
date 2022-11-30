@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
+    // TODO: 1 svc, 1 repo 구조 갖추고 통합 서비스를 두는 것 고려
     private final ArticleRepository articleRepository;
     private final FollowRepository followRepository;
     private final FavoriteRepository favoriteRepository;
@@ -74,6 +75,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private ArticleDto convertEntityToDto(ArticleEntity entity, Boolean favorited, Long favoritesCount, Boolean following) {
+        // TODO: author, following -> profile service에서 get profile로 끝내기
         return ArticleDto.builder()
                 .slug(entity.getSlug())
                 .title(entity.getTitle())

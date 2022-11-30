@@ -16,6 +16,7 @@ public class UserController {
 
     @GetMapping
     public UserDto currentUser(@AuthenticationPrincipal UserDto.Auth authUser) {
+        // TODO: userService.getUser(userId: String) 로 변경
         return userService.currentUser(authUser);
     }
 
