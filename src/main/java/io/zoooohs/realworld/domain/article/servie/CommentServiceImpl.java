@@ -8,10 +8,10 @@ import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.repository.CommentRepository;
 import io.zoooohs.realworld.domain.common.entity.BaseEntity;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
-import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.exception.AppException;
 import io.zoooohs.realworld.exception.Error;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,15 +29,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public CommentDto addCommentsToAnArticle(String slug, CommentDto comment, UserDto.Auth authUser) {
+    public CommentDto addCommentsToAnArticle(String slug, CommentDto comment, AuthUserDetails authUserDetails) {
         ArticleEntity articleEntity = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
         CommentEntity commentEntity = CommentEntity.builder()
                 .body(comment.getBody())
                 .author(UserEntity.builder()
-                        .id(authUser.getId())
-                        .name(authUser.getName())
-                        .bio(authUser.getBio())
-                        .image(authUser.getImage())
+                        .id(authUserDetails.getId())
                         .build())
                 .article(articleEntity)
                 .build();
@@ -59,7 +56,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void delete(String slug, Long commentId, UserDto.Auth authUser) {
+    public void delete(String slug, Long commentId, AuthUserDetails authUserDetails) {
         Long articleId = articleRepository.findBySlug(slug).map(BaseEntity::getId).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
 
         CommentEntity commentEntity = commentRepository.findById(commentId)
@@ -70,12 +67,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDto> getCommentsBySlug(String slug, UserDto.Auth authUser) {
+    public List<CommentDto> getCommentsBySlug(String slug, AuthUserDetails authUserDetails) {
         Long articleId = articleRepository.findBySlug(slug).map(BaseEntity::getId).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
 
         List<CommentEntity> commentEntities = commentRepository.findByArticleId(articleId);
         return commentEntities.stream().map(commentEntity -> {
-            Boolean following = profileService.getProfile(commentEntity.getAuthor().getName(), authUser).getFollowing();
+            Boolean following = profileService.getProfile(commentEntity.getAuthor().getName(), authUserDetails).getFollowing();
             return CommentDto.builder()
                     .id(commentEntity.getId())
                     .createdAt(commentEntity.getCreatedAt())

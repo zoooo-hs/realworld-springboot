@@ -4,10 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.http.HttpHeaders;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
@@ -28,14 +25,6 @@ public class JwtUtils {
         }
         Instant exp = Instant.now();
         return Jwts.builder().setSubject(sub).setIssuedAt(new Date(exp.toEpochMilli())).setExpiration(new Date(exp.toEpochMilli() + validSeconds*1000)).signWith(key).compact();
-    }
-
-    public String resolveToken(ServletRequest request) {
-        String authHeader = ((HttpServletRequest) request).getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Token ")) {
-            return null;
-        }
-        return authHeader.substring("Token ".length());
     }
 
     public boolean validateToken(String jwt) {

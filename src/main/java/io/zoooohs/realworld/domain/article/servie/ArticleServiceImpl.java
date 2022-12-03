@@ -12,10 +12,10 @@ import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
 import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
 import io.zoooohs.realworld.domain.tag.entity.ArticleTagRelationEntity;
-import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.exception.AppException;
 import io.zoooohs.realworld.exception.Error;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,13 +38,11 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional
     @Override
-    public ArticleDto createArticle(ArticleDto article, UserDto.Auth authUser) {
+    public ArticleDto createArticle(ArticleDto article, AuthUserDetails authUserDetails) {
         String slug = String.join("-", article.getTitle().split(" "));
         UserEntity author = UserEntity.builder()
-                .id(authUser.getId())
-                .name(authUser.getName())
-                .bio(authUser.getBio())
-                .image(authUser.getImage())
+                .id(authUserDetails.getId())
+                .name(authUserDetails.getName())
                 .build();
 
         ArticleEntity articleEntity = ArticleEntity.builder()
@@ -65,11 +63,11 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleDto getArticle(String slug, UserDto.Auth authUser) {
+    public ArticleDto getArticle(String slug, AuthUserDetails authUserDetails) {
         ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
-        Boolean following = profileService.getProfile(found.getAuthor().getName(), authUser).getFollowing();
+        Boolean following = profileService.getProfile(found.getAuthor().getName(), authUserDetails).getFollowing();
         List<FavoriteEntity> favorites = found.getFavoriteList();
-        Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUser.getId()));
+        Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUserDetails.getId()));
         int favoriteCount = favorites.size();
         return convertEntityToDto(found, favorited, (long) favoriteCount, following);
     }
@@ -97,8 +95,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional
     @Override
-    public ArticleDto updateArticle(String slug, ArticleDto.Update article, UserDto.Auth authUser) {
-        ArticleEntity found = articleRepository.findBySlug(slug).filter(entity -> entity.getAuthor().getId().equals(authUser.getId())).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
+    public ArticleDto updateArticle(String slug, ArticleDto.Update article, AuthUserDetails authUserDetails) {
+        ArticleEntity found = articleRepository.findBySlug(slug).filter(entity -> entity.getAuthor().getId().equals(authUserDetails.getId())).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
 
         if (article.getTitle() != null) {
             String newSlug = String.join("-", article.getTitle().split(" "));
@@ -116,22 +114,22 @@ public class ArticleServiceImpl implements ArticleService {
 
         articleRepository.save(found);
 
-        return getArticle(slug, authUser);
+        return getArticle(slug, authUserDetails);
     }
 
     @Transactional
     @Override
-    public void deleteArticle(String slug, UserDto.Auth authUser) {
-        ArticleEntity found = articleRepository.findBySlug(slug).filter(entity -> entity.getAuthor().getId().equals(authUser.getId())).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
+    public void deleteArticle(String slug, AuthUserDetails authUserDetails) {
+        ArticleEntity found = articleRepository.findBySlug(slug).filter(entity -> entity.getAuthor().getId().equals(authUserDetails.getId())).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
         articleRepository.delete(found);
     }
 
     @Override
-    public List<ArticleDto> feedArticles(UserDto.Auth authUser, FeedParams feedParams) {
-        List<Long> feedAuthorIds = followRepository.findByFollowerId(authUser.getId()).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
+    public List<ArticleDto> feedArticles(AuthUserDetails authUserDetails, FeedParams feedParams) {
+        List<Long> feedAuthorIds = followRepository.findByFollowerId(authUserDetails.getId()).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
         return articleRepository.findByAuthorIdInOrderByCreatedAtDesc(feedAuthorIds, PageRequest.of(feedParams.getOffset(), feedParams.getLimit())).stream().map(entity -> {
             List<FavoriteEntity> favorites = entity.getFavoriteList();
-            Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUser.getId()));
+            Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUserDetails.getId()));
             int favoriteCount = favorites.size();
             return convertEntityToDto(entity, favorited, (long) favoriteCount, true);
         }).collect(Collectors.toList());
@@ -139,36 +137,36 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional
     @Override
-    public ArticleDto favoriteArticle(String slug, UserDto.Auth authUser) {
+    public ArticleDto favoriteArticle(String slug, AuthUserDetails authUserDetails) {
         ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
 
-        favoriteRepository.findByArticleIdAndUserId(found.getId(), authUser.getId())
+        favoriteRepository.findByArticleIdAndUserId(found.getId(), authUserDetails.getId())
                 .ifPresent(favoriteEntity -> { throw new AppException(Error.ALREADY_FAVORITED_ARTICLE);});
 
         FavoriteEntity favorite = FavoriteEntity.builder()
                 .article(found)
-                .user(UserEntity.builder().id(authUser.getId()).build())
+                .user(UserEntity.builder().id(authUserDetails.getId()).build())
                 .build();
         favoriteRepository.save(favorite);
 
-        return getArticle(slug, authUser);
+        return getArticle(slug, authUserDetails);
     }
 
     @Transactional
     @Override
-    public ArticleDto unfavoriteArticle(String slug, UserDto.Auth authUser) {
+    public ArticleDto unfavoriteArticle(String slug, AuthUserDetails authUserDetails) {
         ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
         FavoriteEntity favorite = found.getFavoriteList().stream()
                 .filter(favoriteEntity -> favoriteEntity.getArticle().getId().equals(found.getId())
-                        && favoriteEntity.getUser().getId().equals(authUser.getId())).findAny()
+                        && favoriteEntity.getUser().getId().equals(authUserDetails.getId())).findAny()
                 .orElseThrow(() -> new AppException(Error.FAVORITE_NOT_FOUND));
         found.getFavoriteList().remove(favorite); // cascade REMOVE
-        return getArticle(slug, authUser);
+        return getArticle(slug, authUserDetails);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ArticleDto> listArticle(ArticleQueryParam articleQueryParam, UserDto.Auth authUser) {
+    public List<ArticleDto> listArticle(ArticleQueryParam articleQueryParam, AuthUserDetails authUserDetails) {
         Pageable pageable = null;
         if (articleQueryParam.getOffset() != null) {
             pageable = PageRequest.of(articleQueryParam.getOffset(), articleQueryParam.getLimit());
@@ -185,16 +183,16 @@ public class ArticleServiceImpl implements ArticleService {
             articleEntities = articleRepository.findListByPaging(pageable);
         }
 
-        return convertToArticleList(articleEntities, authUser);
+        return convertToArticleList(articleEntities, authUserDetails);
     }
 
-    private List<ArticleDto> convertToArticleList(List<ArticleEntity> articleEntities, UserDto.Auth authUser) {
+    private List<ArticleDto> convertToArticleList(List<ArticleEntity> articleEntities, AuthUserDetails authUserDetails) {
         List<Long> authorIds = articleEntities.stream().map(ArticleEntity::getAuthor).map(BaseEntity::getId).collect(Collectors.toList());
-        List<Long> followeeIds = followRepository.findByFollowerIdAndFolloweeIdIn(authUser.getId(), authorIds).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
+        List<Long> followeeIds = followRepository.findByFollowerIdAndFolloweeIdIn(authUserDetails.getId(), authorIds).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
 
         return articleEntities.stream().map(entity -> {
             List<FavoriteEntity> favorites = entity.getFavoriteList();
-            Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUser.getId()));
+            Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUserDetails.getId()));
             int favoriteCount = favorites.size();
             Boolean following = followeeIds.stream().anyMatch(followeeId -> followeeId.equals(entity.getAuthor().getId()));
             return convertEntityToDto(entity, favorited, (long) favoriteCount, following);

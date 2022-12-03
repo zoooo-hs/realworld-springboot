@@ -5,6 +5,7 @@ import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.domain.user.repository.UserRepository;
 import io.zoooohs.realworld.exception.AppException;
 import io.zoooohs.realworld.exception.Error;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import io.zoooohs.realworld.security.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -113,33 +114,33 @@ public class UserServiceImplTest {
 
     @Test
     void whenAuthUser_thenReturnUser() {
-        UserDto.Auth authUser = UserDto.Auth.builder()
+        AuthUserDetails authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .name("username")
                 .email("email@meail.com")
                 .build();
 
         UserEntity userEntity = UserEntity.builder()
-                .name(authUser.getName())
-                .email(authUser.getEmail())
+                .name(authUserDetails.getName())
+                .email(authUserDetails.getEmail())
                 .password("test-password-encoded")
                 .build();
 
-        when(userRepository.findById(eq(authUser.getId()))).thenReturn(Optional.of(userEntity));
+        when(userRepository.findById(eq(authUserDetails.getId()))).thenReturn(Optional.of(userEntity));
 
-        UserDto actual = userService.currentUser(authUser);
+        UserDto actual = userService.currentUser(authUserDetails);
 
-        assertEquals(authUser.getEmail(), actual.getEmail());
-        assertEquals(authUser.getName(), actual.getName());
+        assertEquals(authUserDetails.getEmail(), actual.getEmail());
+        assertEquals(authUserDetails.getName(), actual.getName());
     }
 
     @Test
     void whenAuthUserNotFound_throw404() {
-        UserDto.Auth authUser = UserDto.Auth.builder()
+        AuthUserDetails authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .build();
         try {
-            userService.currentUser(authUser);
+            userService.currentUser(authUserDetails);
             fail();
         } catch (AppException e) {
             assertEquals(Error.USER_NOT_FOUND, e.getError());
@@ -151,7 +152,7 @@ public class UserServiceImplTest {
 
     @Test
     void whenUpdateUserDto_thenReturnUpdatedUserDto() {
-        UserDto.Auth authUser = UserDto.Auth.builder()
+        AuthUserDetails authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .build();
         UserDto.Update update = UserDto.Update.builder().name("newName").bio("newBio").build();
@@ -161,9 +162,9 @@ public class UserServiceImplTest {
                 .email("email@email.com")
                 .password("test-password-encoded")
                 .build();
-        when(userRepository.findById(eq(authUser.getId()))).thenReturn(Optional.of(userEntity));
+        when(userRepository.findById(eq(authUserDetails.getId()))).thenReturn(Optional.of(userEntity));
 
-        UserDto actual = userService.update(update, authUser);
+        UserDto actual = userService.update(update, authUserDetails);
 
         assertEquals(update.getName(), actual.getName());
         assertEquals(update.getBio(), actual.getBio());
@@ -174,7 +175,7 @@ public class UserServiceImplTest {
     @ParameterizedTest
     @MethodSource("invalidUpdate")
     void whenInvalidUpdateDto_thenThrow422(UserDto.Update update) {
-        UserDto.Auth authUser = UserDto.Auth.builder()
+        AuthUserDetails authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .build();
 
@@ -186,7 +187,7 @@ public class UserServiceImplTest {
                 .build();
 
 
-        when(userRepository.findById(eq(authUser.getId()))).thenReturn(Optional.of(userEntity));
+        when(userRepository.findById(eq(authUserDetails.getId()))).thenReturn(Optional.of(userEntity));
         if (update.getEmail() != null) {
             when(userRepository.findByEmail(eq("dup@email.com"))).thenReturn(Optional.of(UserEntity.builder().id(2L).email("dup@email.com").build()));
         } else if (update.getName() != null) {
@@ -194,7 +195,7 @@ public class UserServiceImplTest {
         }
 
         try {
-            userService.update(update, authUser);
+            userService.update(update, authUserDetails);
             fail();
         } catch (AppException e) {
             assertEquals(Error.DUPLICATED_USER, e.getError());

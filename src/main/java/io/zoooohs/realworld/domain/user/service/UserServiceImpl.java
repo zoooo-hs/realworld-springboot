@@ -5,6 +5,7 @@ import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.domain.user.repository.UserRepository;
 import io.zoooohs.realworld.exception.AppException;
 import io.zoooohs.realworld.exception.Error;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import io.zoooohs.realworld.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,19 +35,19 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserDto convertEntityToDto(UserEntity userEntity) {
-        return UserDto.builder().name(userEntity.getName()).bio(userEntity.getBio()).email(userEntity.getEmail()).image(userEntity.getImage()).token(jwtUtils.encode(userEntity.getUsername())).build();
+        return UserDto.builder().name(userEntity.getName()).bio(userEntity.getBio()).email(userEntity.getEmail()).image(userEntity.getImage()).token(jwtUtils.encode(userEntity.getEmail())).build();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public UserDto currentUser(UserDto.Auth authUser) {
-        UserEntity userEntity = userRepository.findById(authUser.getId()).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+    public UserDto currentUser(AuthUserDetails authUserDetails) {
+        UserEntity userEntity = userRepository.findById(authUserDetails.getId()).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
         return convertEntityToDto(userEntity);
     }
 
     @Override
-    public UserDto update(UserDto.Update update, UserDto.Auth authUser) {
-        UserEntity userEntity = userRepository.findById(authUser.getId()).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+    public UserDto update(UserDto.Update update, AuthUserDetails authUserDetails) {
+        UserEntity userEntity = userRepository.findById(authUserDetails.getId()).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
 
         if (update.getName() != null) {
             userRepository.findByName(update.getName())

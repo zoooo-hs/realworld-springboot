@@ -75,15 +75,4 @@ public class UserDto {
         private String password;
     }
 
-    @Getter
-    @AllArgsConstructor
-    @Builder
-    public static class Auth {
-        private Long id;
-        private String email;
-        // TODO: UserEntity 에서 UserDetails 빠지면서 name -> username으로 변경됨. 이에 따라 JsonProperty 필요 없음
-        private String name;
-        private String bio;
-        private String image;
-    }
 }

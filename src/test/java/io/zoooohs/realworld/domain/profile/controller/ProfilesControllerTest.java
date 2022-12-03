@@ -3,7 +3,7 @@ package io.zoooohs.realworld.domain.profile.controller;
 import io.zoooohs.realworld.configuration.WithAuthUser;
 import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
-import io.zoooohs.realworld.domain.user.dto.UserDto;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import io.zoooohs.realworld.security.JWTAuthFilter;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class ProfilesControllerTest {
                 .following(false)
                 .build();
 
-        when(profileService.getProfile(eq("testUser"), any(UserDto.Auth.class))).thenReturn(profileDto);
+        when(profileService.getProfile(eq("testUser"), any(AuthUserDetails.class))).thenReturn(profileDto);
 
         mockMvc.perform(get("/profiles/testUser"))
                 .andExpect(status().isOk())
@@ -64,7 +64,7 @@ public class ProfilesControllerTest {
                 .following(true)
                 .build();
 
-        when(profileService.followUser(eq("testUser"), any(UserDto.Auth.class))).thenReturn(profileDto);
+        when(profileService.followUser(eq("testUser"), any(AuthUserDetails.class))).thenReturn(profileDto);
 
         mockMvc.perform(post("/profiles/testUser/follow"))
                 .andExpect(status().isOk())
@@ -82,7 +82,7 @@ public class ProfilesControllerTest {
                 .following(true)
                 .build();
 
-        when(profileService.unfollowUser(eq("testUser"), any(UserDto.Auth.class))).thenReturn(profileDto);
+        when(profileService.unfollowUser(eq("testUser"), any(AuthUserDetails.class))).thenReturn(profileDto);
 
         mockMvc.perform(delete("/profiles/testUser/follow"))
                 .andExpect(status().isOk())

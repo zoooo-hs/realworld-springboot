@@ -6,7 +6,7 @@ import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.dto.CommentDto;
 import io.zoooohs.realworld.domain.article.servie.ArticleService;
 import io.zoooohs.realworld.domain.article.servie.CommentService;
-import io.zoooohs.realworld.domain.user.dto.UserDto;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import io.zoooohs.realworld.security.JWTAuthFilter;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,7 +78,7 @@ public class ArticlesControllerTest {
     @Test
     @WithAuthUser
     void whenValidArticleForm_thenReturnArticle() throws Exception {
-        when(articleService.createArticle(any(ArticleDto.class), any(UserDto.Auth.class))).thenReturn(article);
+        when(articleService.createArticle(any(ArticleDto.class), any(AuthUserDetails.class))).thenReturn(article);
 
         mockMvc.perform(post("/articles")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,7 +91,7 @@ public class ArticlesControllerTest {
     @Test
     @WithAuthUser
     void whenThereIsArticleWithSlug_thenReturnSingleArticle() throws Exception {
-        when(articleService.getArticle(eq(slug), any(UserDto.Auth.class))).then((Answer<ArticleDto>) invocation ->
+        when(articleService.getArticle(eq(slug), any(AuthUserDetails.class))).then((Answer<ArticleDto>) invocation ->
                 ArticleDto.builder()
                         .slug(slug)
                         .title("article title")
@@ -112,7 +112,7 @@ public class ArticlesControllerTest {
     @Test
     @WithAuthUser
     void whenPUTValidArticleForm_thenReturnUpdatedSingleArticle() throws Exception {
-        when(articleService.updateArticle(anyString(), any(ArticleDto.Update.class), any(UserDto.Auth.class))).thenReturn(article);
+        when(articleService.updateArticle(anyString(), any(ArticleDto.Update.class), any(AuthUserDetails.class))).thenReturn(article);
 
         mockMvc.perform(put("/articles/hello-world")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -140,7 +140,7 @@ public class ArticlesControllerTest {
                 .author(ArticleDto.Author.builder().following(true).build())
                 .build();
 
-        when(articleService.feedArticles(any(UserDto.Auth.class), any())).thenReturn(List.of(article));
+        when(articleService.feedArticles(any(AuthUserDetails.class), any())).thenReturn(List.of(article));
 
         mockMvc.perform(get("/articles/feed")
                         .param("limit", "1")
@@ -169,7 +169,7 @@ public class ArticlesControllerTest {
     @WithAuthUser
     void whenFavoriteArticle_thenReturnArticleWithUpdatedFavorite() throws Exception {
         article.setFavorited(true);
-        when(articleService.favoriteArticle(eq("some-slug"), any(UserDto.Auth.class))).thenReturn(article);
+        when(articleService.favoriteArticle(eq("some-slug"), any(AuthUserDetails.class))).thenReturn(article);
 
         mockMvc.perform(post("/articles/some-slug/favorite")
                 )
@@ -182,7 +182,7 @@ public class ArticlesControllerTest {
     @WithAuthUser
     void whenUnfavoriteArticle_thenReturnArticleWithUpdatedFavorite() throws Exception {
         article.setFavorited(false);
-        when(articleService.unfavoriteArticle(eq("some-slug"), any(UserDto.Auth.class))).thenReturn(article);
+        when(articleService.unfavoriteArticle(eq("some-slug"), any(AuthUserDetails.class))).thenReturn(article);
 
         mockMvc.perform(delete("/articles/some-slug/favorite")
                 )
@@ -237,7 +237,7 @@ public class ArticlesControllerTest {
                 .build();
 
 
-        when(commentService.addCommentsToAnArticle(anyString(), any(), any(UserDto.Auth.class))).thenReturn(result);
+        when(commentService.addCommentsToAnArticle(anyString(), any(), any(AuthUserDetails.class))).thenReturn(result);
 
         mockMvc.perform(post("/articles/some-slug/comments")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -256,7 +256,7 @@ public class ArticlesControllerTest {
     @Test
     @WithAuthUser
     void whenGetArticleCommentsBySlug_thenReturnComments() throws Exception {
-        when(commentService.getCommentsBySlug(anyString(), any(UserDto.Auth.class)))
+        when(commentService.getCommentsBySlug(anyString(), any(AuthUserDetails.class)))
                 .thenReturn(List.of(CommentDto.builder().build()));
 
         mockMvc.perform(get("/articles/some-slug/comments"))

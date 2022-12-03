@@ -2,6 +2,7 @@ package io.zoooohs.realworld.domain.user.controller;
 
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.service.UserService;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +16,13 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public UserDto currentUser(@AuthenticationPrincipal UserDto.Auth authUser) {
+    public UserDto currentUser(@AuthenticationPrincipal AuthUserDetails authUserDetails) {
         // TODO: userService.getUser(userId: String) 로 변경
-        return userService.currentUser(authUser);
+        return userService.currentUser(authUserDetails);
     }
 
     @PutMapping
-    public UserDto update(@Valid @RequestBody UserDto.Update update, @AuthenticationPrincipal UserDto.Auth authUser) {
-        return userService.update(update, authUser);
+    public UserDto update(@Valid @RequestBody UserDto.Update update, @AuthenticationPrincipal AuthUserDetails authUserDetails) {
+        return userService.update(update, authUserDetails);
     }
 }

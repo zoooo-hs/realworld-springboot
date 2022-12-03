@@ -1,28 +1,31 @@
 package io.zoooohs.realworld.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class JWTAuthFilter extends GenericFilter {
+    public static final String TOKEN_PREFIX = "Token ";
     private final JwtUtils jwtUtils;
     private final AuthenticationProvider authenticationProvider;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // TODO: request에서 jwt 추출하고 username까지 한번에 추출하고 username == null이면 dofilter
-        String jwt = jwtUtils.resolveToken(request);
-        if (jwt != null && jwtUtils.validateToken(jwt)) {
-            String username = jwtUtils.getSub(jwt);
-            Authentication authentication = authenticationProvider.getAuthentication(username);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
+        Optional.ofNullable(((HttpServletRequest)request).getHeader(HttpHeaders.AUTHORIZATION))
+                .filter(authHeader -> authHeader.startsWith(TOKEN_PREFIX))
+                .map(authHeader -> authHeader.substring(TOKEN_PREFIX.length()))
+                .filter(jwtUtils::validateToken)
+                .map(jwtUtils::getSub)
+                .map(authenticationProvider::getAuthentication)
+                .ifPresent(SecurityContextHolder.getContext()::setAuthentication);
         chain.doFilter(request, response);
     }
 }

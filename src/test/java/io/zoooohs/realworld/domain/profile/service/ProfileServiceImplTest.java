@@ -3,11 +3,11 @@ package io.zoooohs.realworld.domain.profile.service;
 import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
 import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
-import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.domain.user.repository.UserRepository;
 import io.zoooohs.realworld.exception.AppException;
 import io.zoooohs.realworld.exception.Error;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 public class ProfileServiceImplTest {
     ProfileService profileService;
 
-    UserDto.Auth authUser;
+    AuthUserDetails authUserDetails;
 
     @Mock
     UserRepository userRepository;
@@ -37,12 +37,10 @@ public class ProfileServiceImplTest {
     @BeforeEach
     void setUp() {
         profileService = new ProfileServiceImpl(userRepository, followRepository);
-        authUser = UserDto.Auth.builder()
+        authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .email("email@email.com")
                 .name("testUser")
-                .bio("bio")
-                .image("photo-path")
                 .build();
 
         expectedUser = UserEntity.builder()
@@ -58,7 +56,7 @@ public class ProfileServiceImplTest {
 
     @Test
     void whenValidUsername_thenReturnProfile() {
-        ProfileDto actual = profileService.getProfile(expectedUser.getName(), authUser);
+        ProfileDto actual = profileService.getProfile(expectedUser.getName(), authUserDetails);
 
         assertEquals(expectedUser.getName(), actual.getName());
         assertEquals(expectedUser.getBio(), actual.getBio());
@@ -67,16 +65,16 @@ public class ProfileServiceImplTest {
 
     @Test
     void whenFollowValidUsername_thenFollowAndReturnProfile() {
-        ProfileDto actual = profileService.followUser(expectedUser.getName(), authUser);
+        ProfileDto actual = profileService.followUser(expectedUser.getName(), authUserDetails);
 
         assertTrue(actual.getFollowing());
     }
 
     @Test
     void whenFollowFollowedUsername_thenThrow422() {
-        when(followRepository.findByFolloweeIdAndFollowerId(expectedUser.getId(), authUser.getId())).thenReturn(Optional.of(FollowEntity.builder().build()));
+        when(followRepository.findByFolloweeIdAndFollowerId(expectedUser.getId(), authUserDetails.getId())).thenReturn(Optional.of(FollowEntity.builder().build()));
         try {
-            profileService.followUser(expectedUser.getName(), authUser);
+            profileService.followUser(expectedUser.getName(), authUserDetails);
             fail();
         } catch (AppException e) {
             assertEquals(Error.ALREADY_FOLLOWED_USER, e.getError());
@@ -88,9 +86,9 @@ public class ProfileServiceImplTest {
 
     @Test
     void whenUnfollowFollowedUsername_thenReturnProfile() {
-        when(followRepository.findByFolloweeIdAndFollowerId(expectedUser.getId(), authUser.getId())).thenReturn(Optional.of(FollowEntity.builder().build()));
+        when(followRepository.findByFolloweeIdAndFollowerId(expectedUser.getId(), authUserDetails.getId())).thenReturn(Optional.of(FollowEntity.builder().build()));
 
-        ProfileDto actual = profileService.unfollowUser(expectedUser.getName(), authUser);
+        ProfileDto actual = profileService.unfollowUser(expectedUser.getName(), authUserDetails);
 
         assertFalse(actual.getFollowing());
     }
@@ -98,7 +96,7 @@ public class ProfileServiceImplTest {
     @Test
     void whenUnfollowNotFollowedUsername_thenThrow404() {
         try {
-            profileService.unfollowUser(expectedUser.getName(), authUser);
+            profileService.unfollowUser(expectedUser.getName(), authUserDetails);
             fail();
         } catch (AppException e) {
             assertEquals(Error.FOLLOW_NOT_FOUND, e.getError());

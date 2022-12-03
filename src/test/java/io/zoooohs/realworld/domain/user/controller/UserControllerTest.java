@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zoooohs.realworld.configuration.WithAuthUser;
 import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.service.UserService;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import io.zoooohs.realworld.security.JWTAuthFilter;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ public class UserControllerTest {
     void whenAuthorizedUser_returnUserDto() throws Exception {
         UserDto result = UserDto.builder().email("email@email.com").name("username").build();
 
-        when(userService.currentUser(any(UserDto.Auth.class))).thenReturn(result);
+        when(userService.currentUser(any(AuthUserDetails.class))).thenReturn(result);
 
         mockMvc.perform(get("/user"))
                 .andExpect(status().isOk())
@@ -60,7 +61,7 @@ public class UserControllerTest {
         UserDto.Update update = UserDto.Update.builder().name("newName").bio("newBio").build();
         UserDto result = UserDto.builder().name("newName").bio("newBio").build();
 
-        when(userService.update(any(UserDto.Update.class), any(UserDto.Auth.class))).thenReturn(result);
+        when(userService.update(any(UserDto.Update.class), any(AuthUserDetails.class))).thenReturn(result);
 
         mockMvc.perform(put("/user")
                         .contentType(MediaType.APPLICATION_JSON)

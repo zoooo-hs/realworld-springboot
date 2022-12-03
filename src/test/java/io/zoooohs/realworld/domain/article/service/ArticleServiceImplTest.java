@@ -13,8 +13,8 @@ import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
 import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
 import io.zoooohs.realworld.domain.tag.entity.ArticleTagRelationEntity;
-import io.zoooohs.realworld.domain.user.dto.UserDto;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
 public class ArticleServiceImplTest {
     ArticleServiceImpl articleService;
 
-    UserDto.Auth authUser;
+    AuthUserDetails authUserDetails;
 
     @Mock
     ArticleRepository articleRepository;
@@ -60,12 +60,10 @@ public class ArticleServiceImplTest {
     @BeforeEach
     void setUp() {
         articleService = new ArticleServiceImpl(articleRepository, followRepository, favoriteRepository, profileService);
-        authUser = UserDto.Auth.builder()
+        authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .email("email@email.com")
                 .name("testUser")
-                .bio("bio")
-                .image("photo-path")
                 .build();
         article = ArticleDto.builder()
                 .title("article title")
@@ -79,10 +77,10 @@ public class ArticleServiceImplTest {
         expectedSlug = String.join("-", article.getTitle().split(" "));
 
         author = UserEntity.builder()
-                .id(authUser.getId())
-                .name(authUser.getName())
-                .bio(authUser.getBio())
-                .image(authUser.getImage())
+                .id(authUserDetails.getId())
+                .name(authUserDetails.getName())
+                .bio("bio")
+                .image("photo-path")
                 .build();
 
         expectedArticle = ArticleEntity.builder()
@@ -107,10 +105,10 @@ public class ArticleServiceImplTest {
     void whenValidArticleForm_thenReturnArticle() {
         when(articleRepository.save(any(ArticleEntity.class))).thenReturn(expectedArticle);
 
-        ArticleDto actual = articleService.createArticle(article, authUser);
+        ArticleDto actual = articleService.createArticle(article, authUserDetails);
 
         assertEquals(expectedSlug, actual.getSlug());
-        assertEquals(authUser.getName(), actual.getAuthor().getName());
+        assertEquals(authUserDetails.getName(), actual.getAuthor().getName());
         assertTrue(beforeWrite.isBefore(actual.getCreatedAt()));
         assertTrue(beforeWrite.isBefore(actual.getUpdatedAt()));
         assertFalse(actual.getFavorited());
@@ -124,9 +122,9 @@ public class ArticleServiceImplTest {
         String slug = "article-title";
 
         when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
-        when(profileService.getProfile(eq(author.getName()), any(UserDto.Auth.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfile(eq(author.getName()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
 
-        ArticleDto actual = articleService.getArticle(slug, authUser);
+        ArticleDto actual = articleService.getArticle(slug, authUserDetails);
 
         assertEquals(slug, actual.getSlug());
         assertEquals("article title", actual.getTitle());
@@ -138,9 +136,9 @@ public class ArticleServiceImplTest {
         ArticleDto.Update updateArticle = ArticleDto.Update.builder().title("new title").build();
 
         when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
-        when(profileService.getProfile(eq(author.getName()), any(UserDto.Auth.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfile(eq(author.getName()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
 
-        ArticleDto actual = articleService.updateArticle(slug, updateArticle, authUser);
+        ArticleDto actual = articleService.updateArticle(slug, updateArticle, authUserDetails);
 
         assertEquals(updateArticle.getTitle(), actual.getTitle());
         assertEquals("new-title", actual.getSlug());
@@ -151,19 +149,19 @@ public class ArticleServiceImplTest {
         String slug = "article-title";
         when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
 
-        articleService.deleteArticle(slug, authUser);
+        articleService.deleteArticle(slug, authUserDetails);
 
         verify(articleRepository, times(1)).delete(any(ArticleEntity.class));
     }
 
     @Test
     void whenValidUserFeed_thenReturnMultipleArticle() {
-        when(followRepository.findByFollowerId(eq(authUser.getId()))).thenReturn(List.of(FollowEntity.builder().followee(author).build()));
+        when(followRepository.findByFollowerId(eq(authUserDetails.getId()))).thenReturn(List.of(FollowEntity.builder().followee(author).build()));
         when(articleRepository.findByAuthorIdInOrderByCreatedAtDesc(anyList(), any())).thenReturn(List.of(expectedArticle));
 
         FeedParams feedParams = FeedParams.builder().offset(0).limit(1).build();
 
-        List<ArticleDto> actual = articleService.feedArticles(authUser, feedParams);
+        List<ArticleDto> actual = articleService.feedArticles(authUserDetails, feedParams);
 
         assertEquals(1, actual.size());
         assertTrue(actual.get(0).getAuthor().getFollowing());
@@ -181,15 +179,15 @@ public class ArticleServiceImplTest {
                             count += 1;
                             return Optional.ofNullable(expectedArticle);
                         } else {
-                            expectedArticle.setFavoriteList(List.of(FavoriteEntity.builder().article(expectedArticle).user(UserEntity.builder().id(authUser.getId()).build()).build()));
+                            expectedArticle.setFavoriteList(List.of(FavoriteEntity.builder().article(expectedArticle).user(UserEntity.builder().id(authUserDetails.getId()).build()).build()));
                             return Optional.ofNullable(expectedArticle);
                         }
                     }
                 });
-        when(profileService.getProfile(eq(author.getName()), any(UserDto.Auth.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfile(eq(author.getName()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
 
 
-        ArticleDto actual = articleService.favoriteArticle(expectedArticle.getSlug(), authUser);
+        ArticleDto actual = articleService.favoriteArticle(expectedArticle.getSlug(), authUserDetails);
 
         assertTrue(actual.getFavorited());
         assertTrue(favoritesCount < actual.getFavoritesCount());
@@ -206,7 +204,7 @@ public class ArticleServiceImplTest {
                         if (count == 0) {
                             count += 1;
                             List<FavoriteEntity> favoriteEntities = new ArrayList<>();
-                            favoriteEntities.add(FavoriteEntity.builder().article(expectedArticle).user(UserEntity.builder().id(authUser.getId()).build()).build());
+                            favoriteEntities.add(FavoriteEntity.builder().article(expectedArticle).user(UserEntity.builder().id(authUserDetails.getId()).build()).build());
                             expectedArticle.setFavoriteList(favoriteEntities);
                         } else {
                             expectedArticle.setFavoriteList(List.of());
@@ -214,9 +212,9 @@ public class ArticleServiceImplTest {
                         return Optional.ofNullable(expectedArticle);
                     }
                 });
-        when(profileService.getProfile(eq(author.getName()), any(UserDto.Auth.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfile(eq(author.getName()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
 
-        ArticleDto actual = articleService.unfavoriteArticle(expectedArticle.getSlug(), authUser);
+        ArticleDto actual = articleService.unfavoriteArticle(expectedArticle.getSlug(), authUserDetails);
 
         assertFalse(actual.getFavorited());
         assertTrue(favoritesCount > actual.getFavoritesCount());
@@ -229,7 +227,7 @@ public class ArticleServiceImplTest {
 
         when(articleRepository.findByTag(eq("tag1"), any())).thenReturn(List.of(expectedArticle));
 
-        List<ArticleDto> actual = articleService.listArticle(query, authUser);
+        List<ArticleDto> actual = articleService.listArticle(query, authUserDetails);
 
         assertTrue(actual.get(0).getTagList().contains("tag1"));
     }
@@ -241,7 +239,7 @@ public class ArticleServiceImplTest {
 
         when(articleRepository.findByAuthorName(eq("testUser"), any())).thenReturn(List.of(expectedArticle));
 
-        List<ArticleDto> actual = articleService.listArticle(query, authUser);
+        List<ArticleDto> actual = articleService.listArticle(query, authUserDetails);
 
         assertEquals("testUser", actual.get(0).getAuthor().getName());
     }
@@ -255,7 +253,7 @@ public class ArticleServiceImplTest {
 
         when(articleRepository.findByFavoritedUsername(eq("username"), any())).thenReturn(List.of(expectedArticle));
 
-        List<ArticleDto> actual = articleService.listArticle(query, authUser);
+        List<ArticleDto> actual = articleService.listArticle(query, authUserDetails);
 
         assertTrue(actual.size() > 0);
     }

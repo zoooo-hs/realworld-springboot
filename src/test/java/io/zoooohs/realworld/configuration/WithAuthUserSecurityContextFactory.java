@@ -1,6 +1,6 @@
 package io.zoooohs.realworld.configuration;
 
-import io.zoooohs.realworld.domain.user.dto.UserDto;
+import io.zoooohs.realworld.security.AuthUserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,9 +13,9 @@ public class WithAuthUserSecurityContextFactory implements WithSecurityContextFa
         String name = annotation.name();
         Long id = annotation.id();
 
-        UserDto.Auth authUser = UserDto.Auth.builder().id(id).email(email).name(name).build();
+        AuthUserDetails authUserDetails = AuthUserDetails.builder().id(id).email(email).name(name).build();
         UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(authUser, "", null);
+                new UsernamePasswordAuthenticationToken(authUserDetails, "", null);
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(token);
         return context;

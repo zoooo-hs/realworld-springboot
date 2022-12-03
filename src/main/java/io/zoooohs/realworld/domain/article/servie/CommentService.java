@@ -1,14 +1,14 @@
 package io.zoooohs.realworld.domain.article.servie;
 
 import io.zoooohs.realworld.domain.article.dto.CommentDto;
-import io.zoooohs.realworld.domain.user.dto.UserDto;
+import io.zoooohs.realworld.security.AuthUserDetails;
 
 import java.util.List;
 
 public interface CommentService {
-    CommentDto addCommentsToAnArticle(final String slug, final CommentDto comment, final UserDto.Auth authUser);
+    CommentDto addCommentsToAnArticle(final String slug, final CommentDto comment, final AuthUserDetails authUserDetails);
 
-    void delete(final String slug, final Long commentId, final UserDto.Auth authUser);
+    void delete(final String slug, final Long commentId, final AuthUserDetails authUserDetails);
 
-    List<CommentDto> getCommentsBySlug(final String slug, final UserDto.Auth authUser);
+    List<CommentDto> getCommentsBySlug(final String slug, final AuthUserDetails authUserDetails);
 }
