@@ -41,7 +41,7 @@ public class ProfilesControllerTest {
     void whenValidUsername_thenReturnProfile() throws Exception {
 
         ProfileDto profileDto = ProfileDto.builder()
-                .name("testUser")
+                .username("testUser")
                 .bio("some bio")
                 .image("profilephoto")
                 .following(false)
@@ -58,7 +58,7 @@ public class ProfilesControllerTest {
     @WithAuthUser
     void whenFollowValidUsername_thenReturnProfile() throws Exception {
         ProfileDto profileDto = ProfileDto.builder()
-                .name("testUser")
+                .username("testUser")
                 .bio("some bio")
                 .image("profilephoto")
                 .following(true)
@@ -76,7 +76,7 @@ public class ProfilesControllerTest {
     @WithAuthUser
     void whenUnFollowFollowedUsername_thenReturnProfile() throws Exception {
         ProfileDto profileDto = ProfileDto.builder()
-                .name("testUser")
+                .username("testUser")
                 .bio("some bio")
                 .image("profilephoto")
                 .following(true)

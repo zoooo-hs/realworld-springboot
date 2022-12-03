@@ -42,7 +42,6 @@ public class ArticleServiceImpl implements ArticleService {
         String slug = String.join("-", article.getTitle().split(" "));
         UserEntity author = UserEntity.builder()
                 .id(authUserDetails.getId())
-                .name(authUserDetails.getName())
                 .build();
 
         ArticleEntity articleEntity = ArticleEntity.builder()
@@ -65,7 +64,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleDto getArticle(String slug, AuthUserDetails authUserDetails) {
         ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
-        Boolean following = profileService.getProfile(found.getAuthor().getName(), authUserDetails).getFollowing();
+        Boolean following = profileService.getProfile(found.getAuthor().getUsername(), authUserDetails).getFollowing();
         List<FavoriteEntity> favorites = found.getFavoriteList();
         Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUserDetails.getId()));
         int favoriteCount = favorites.size();
@@ -80,7 +79,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .description(entity.getDescription())
                 .body(entity.getBody())
                 .author(ArticleDto.Author.builder()
-                        .name(entity.getAuthor().getName())
+                        .username(entity.getAuthor().getUsername())
                         .bio(entity.getAuthor().getBio())
                         .image(entity.getAuthor().getImage())
                         .following(following)

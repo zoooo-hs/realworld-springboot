@@ -16,9 +16,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "users")
 public class UserEntity extends BaseEntity {
-    // TODO: name ->  username으로 변경
     @Column(nullable = false, unique = true)
-    private String name;
+    private String username;
     @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = false)
@@ -29,9 +28,9 @@ public class UserEntity extends BaseEntity {
     private String image;
 
     @Builder
-    public UserEntity(Long id, String name, String email, String password, String bio, String image) {
+    public UserEntity(Long id, String username, String email, String password, String bio, String image) {
         this.id = id;
-        this.name = name;
+        this.username = username;
         this.email = email;
         this.password = password;
         this.bio = bio;

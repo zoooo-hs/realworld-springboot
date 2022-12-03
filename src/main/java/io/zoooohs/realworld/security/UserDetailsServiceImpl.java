@@ -20,7 +20,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .map(userEntity ->
                         AuthUserDetails.builder()
                                 .id(userEntity.getId())
-                                .name(userEntity.getName())
                                 .email(userEntity.getEmail())
                                 .build())
                 .orElse(null);

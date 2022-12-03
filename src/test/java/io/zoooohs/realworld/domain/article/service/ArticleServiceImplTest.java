@@ -63,7 +63,6 @@ public class ArticleServiceImplTest {
         authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .email("email@email.com")
-                .name("testUser")
                 .build();
         article = ArticleDto.builder()
                 .title("article title")
@@ -78,7 +77,7 @@ public class ArticleServiceImplTest {
 
         author = UserEntity.builder()
                 .id(authUserDetails.getId())
-                .name(authUserDetails.getName())
+                .username("testUser")
                 .bio("bio")
                 .image("photo-path")
                 .build();
@@ -108,7 +107,6 @@ public class ArticleServiceImplTest {
         ArticleDto actual = articleService.createArticle(article, authUserDetails);
 
         assertEquals(expectedSlug, actual.getSlug());
-        assertEquals(authUserDetails.getName(), actual.getAuthor().getName());
         assertTrue(beforeWrite.isBefore(actual.getCreatedAt()));
         assertTrue(beforeWrite.isBefore(actual.getUpdatedAt()));
         assertFalse(actual.getFavorited());
@@ -122,7 +120,7 @@ public class ArticleServiceImplTest {
         String slug = "article-title";
 
         when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
-        when(profileService.getProfile(eq(author.getName()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfile(eq(author.getUsername()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
 
         ArticleDto actual = articleService.getArticle(slug, authUserDetails);
 
@@ -136,7 +134,7 @@ public class ArticleServiceImplTest {
         ArticleDto.Update updateArticle = ArticleDto.Update.builder().title("new title").build();
 
         when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
-        when(profileService.getProfile(eq(author.getName()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfile(eq(author.getUsername()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
 
         ArticleDto actual = articleService.updateArticle(slug, updateArticle, authUserDetails);
 
@@ -184,7 +182,7 @@ public class ArticleServiceImplTest {
                         }
                     }
                 });
-        when(profileService.getProfile(eq(author.getName()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfile(eq(author.getUsername()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
 
 
         ArticleDto actual = articleService.favoriteArticle(expectedArticle.getSlug(), authUserDetails);
@@ -212,7 +210,7 @@ public class ArticleServiceImplTest {
                         return Optional.ofNullable(expectedArticle);
                     }
                 });
-        when(profileService.getProfile(eq(author.getName()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfile(eq(author.getUsername()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
 
         ArticleDto actual = articleService.unfavoriteArticle(expectedArticle.getSlug(), authUserDetails);
 
@@ -241,7 +239,7 @@ public class ArticleServiceImplTest {
 
         List<ArticleDto> actual = articleService.listArticle(query, authUserDetails);
 
-        assertEquals("testUser", actual.get(0).getAuthor().getName());
+        assertEquals("testUser", actual.get(0).getAuthor().getUsername());
     }
 
     @Test
@@ -249,7 +247,7 @@ public class ArticleServiceImplTest {
         ArticleQueryParam query = new ArticleQueryParam();
         query.setFavorited("username");
 
-        expectedArticle.setFavoriteList(List.of(FavoriteEntity.builder().user(UserEntity.builder().id(1L).name("username").build()).build()));
+        expectedArticle.setFavoriteList(List.of(FavoriteEntity.builder().user(UserEntity.builder().id(1L).username("username").build()).build()));
 
         when(articleRepository.findByFavoritedUsername(eq("username"), any())).thenReturn(List.of(expectedArticle));
 

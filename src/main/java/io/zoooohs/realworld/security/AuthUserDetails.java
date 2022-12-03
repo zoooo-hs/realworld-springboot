@@ -8,22 +8,16 @@ import java.util.Collection;
 
 public class AuthUserDetails implements UserDetails {
     private final Long id;
-    private final String name;
     private final String email;
 
     @Builder
-    public AuthUserDetails(Long id, String name, String email) {
+    public AuthUserDetails(Long id, String email) {
         this.id = id;
-        this.name = name;
         this.email = email;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getEmail() {

@@ -63,7 +63,7 @@ public class ArticlesControllerTest {
 
     @BeforeEach
     void setUp() {
-        author =  ArticleDto.Author.builder().name("username").build();
+        author =  ArticleDto.Author.builder().username("username").build();
         article = ArticleDto.builder()
                 .title("article title")
                 .description("description")

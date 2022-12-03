@@ -45,7 +45,7 @@ public class UserServiceImplTest {
 
     @Test
     void whenValidRegistrationInfo_thenSaveNewUserAndReturnNewUserDto() {
-        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").name("testman").password("password").build();
+        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").username("testman").password("password").build();
 
         when(jwtUtils.encode(anyString())).thenReturn("token.test.needed");
         when(passwordEncoder.encode(anyString())).thenReturn("b{testpasswordencodedstring}");
@@ -55,7 +55,7 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).save(any(UserEntity.class));
 
         assertEquals(registration.getEmail(), actual.getEmail());
-        assertEquals(registration.getName(), actual.getName());
+        assertEquals(registration.getUsername(), actual.getUsername());
         assertEquals("", actual.getBio());
         assertNull(actual.getImage());
         assertNotNull(actual.getToken());
@@ -63,9 +63,9 @@ public class UserServiceImplTest {
 
     @Test
     void whenDuplicatedUserRegistration_thenThrowDuplicationException() {
-        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").name("testman").password("password").build();
+        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").username("testman").password("password").build();
 
-        when(userRepository.findByNameOrEmail(anyString(), anyString())).thenReturn(List.of(UserEntity.builder().build()));
+        when(userRepository.findByUsernameOrEmail(anyString(), anyString())).thenReturn(List.of(UserEntity.builder().build()));
 
         try {
             userService.registration(registration);
@@ -82,7 +82,7 @@ public class UserServiceImplTest {
         UserDto.Login login = UserDto.Login.builder().email("test@test.com").password("password123").build();
 
         UserEntity userEntity = UserEntity.builder()
-                .name("username")
+                .username("username")
                 .email(login.getEmail())
                 .password("test-password-encoded")
                 .build();
@@ -116,12 +116,11 @@ public class UserServiceImplTest {
     void whenAuthUser_thenReturnUser() {
         AuthUserDetails authUserDetails = AuthUserDetails.builder()
                 .id(1L)
-                .name("username")
                 .email("email@meail.com")
                 .build();
 
         UserEntity userEntity = UserEntity.builder()
-                .name(authUserDetails.getName())
+                .username("name")
                 .email(authUserDetails.getEmail())
                 .password("test-password-encoded")
                 .build();
@@ -131,7 +130,6 @@ public class UserServiceImplTest {
         UserDto actual = userService.currentUser(authUserDetails);
 
         assertEquals(authUserDetails.getEmail(), actual.getEmail());
-        assertEquals(authUserDetails.getName(), actual.getName());
     }
 
     @Test
@@ -155,10 +153,10 @@ public class UserServiceImplTest {
         AuthUserDetails authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .build();
-        UserDto.Update update = UserDto.Update.builder().name("newName").bio("newBio").build();
+        UserDto.Update update = UserDto.Update.builder().username("newName").bio("newBio").build();
 
         UserEntity userEntity = UserEntity.builder()
-                .name("username")
+                .username("username")
                 .email("email@email.com")
                 .password("test-password-encoded")
                 .build();
@@ -166,9 +164,9 @@ public class UserServiceImplTest {
 
         UserDto actual = userService.update(update, authUserDetails);
 
-        assertEquals(update.getName(), actual.getName());
+        assertEquals(update.getUsername(), actual.getUsername());
         assertEquals(update.getBio(), actual.getBio());
-        assertNotNull(actual.getName());
+        assertNotNull(actual.getUsername());
         assertNotNull(actual.getEmail());
     }
 
@@ -181,7 +179,7 @@ public class UserServiceImplTest {
 
         UserEntity userEntity = UserEntity.builder()
                 .id(1L)
-                .name("username")
+                .username("username")
                 .email("email@email.com")
                 .password("test-password-encoded")
                 .build();
@@ -190,8 +188,8 @@ public class UserServiceImplTest {
         when(userRepository.findById(eq(authUserDetails.getId()))).thenReturn(Optional.of(userEntity));
         if (update.getEmail() != null) {
             when(userRepository.findByEmail(eq("dup@email.com"))).thenReturn(Optional.of(UserEntity.builder().id(2L).email("dup@email.com").build()));
-        } else if (update.getName() != null) {
-            when(userRepository.findByName(eq("dupName"))).thenReturn(Optional.of(UserEntity.builder().id(2L).name("dupName").build()));
+        } else if (update.getUsername() != null) {
+            when(userRepository.findByUsername(eq("dupName"))).thenReturn(Optional.of(UserEntity.builder().id(2L).username("dupName").build()));
         }
 
         try {
@@ -206,7 +204,7 @@ public class UserServiceImplTest {
 
     public static Stream<Arguments> invalidUpdate() {
         return Stream.of(
-                Arguments.of(UserDto.Update.builder().name("dupName").build()),
+                Arguments.of(UserDto.Update.builder().username("dupName").build()),
                 Arguments.of(UserDto.Update.builder().email("dup@email.com").build())
         );
     }

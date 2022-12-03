@@ -1,6 +1,5 @@
 package io.zoooohs.realworld.domain.article.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
@@ -34,8 +33,7 @@ public class ArticleDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Author {
-        @JsonProperty("username")
-        private String name;
+        private String username;
         private String bio;
         private String image;
         private Boolean following;

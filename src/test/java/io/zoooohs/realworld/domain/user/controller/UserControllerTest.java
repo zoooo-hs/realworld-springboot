@@ -45,21 +45,21 @@ public class UserControllerTest {
     @Test
     @WithAuthUser
     void whenAuthorizedUser_returnUserDto() throws Exception {
-        UserDto result = UserDto.builder().email("email@email.com").name("username").build();
+        UserDto result = UserDto.builder().email("email@email.com").username("username").build();
 
         when(userService.currentUser(any(AuthUserDetails.class))).thenReturn(result);
 
         mockMvc.perform(get("/user"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.email", Matchers.is(result.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.is(result.getName())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.is(result.getUsername())));
     }
 
     @Test
     @WithAuthUser
     void whenUpdateDto_returnUpdatedUserDto() throws Exception {
-        UserDto.Update update = UserDto.Update.builder().name("newName").bio("newBio").build();
-        UserDto result = UserDto.builder().name("newName").bio("newBio").build();
+        UserDto.Update update = UserDto.Update.builder().username("newName").bio("newBio").build();
+        UserDto result = UserDto.builder().username("newName").bio("newBio").build();
 
         when(userService.update(any(UserDto.Update.class), any(AuthUserDetails.class))).thenReturn(result);
 
@@ -68,7 +68,7 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(update))
                 )
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.is(update.getName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.is(update.getUsername())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.bio", Matchers.is(update.getBio())));
     }
 }

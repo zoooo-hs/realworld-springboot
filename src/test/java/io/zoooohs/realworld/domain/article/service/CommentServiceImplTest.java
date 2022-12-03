@@ -49,7 +49,6 @@ public class CommentServiceImplTest {
         authUserDetails = AuthUserDetails.builder()
                 .id(1L)
                 .email("email@email.com")
-                .name("testUser")
                 .build();
 
         article = ArticleDto.builder()
@@ -65,7 +64,6 @@ public class CommentServiceImplTest {
 
         author = UserEntity.builder()
                 .id(authUserDetails.getId())
-                .name(authUserDetails.getName())
                 .build();
 
         expectedArticle = ArticleEntity.builder()
@@ -81,7 +79,6 @@ public class CommentServiceImplTest {
                 .body("body")
                 .author(UserEntity.builder()
                         .id(authUserDetails.getId())
-                        .name(authUserDetails.getName())
                         .build())
                 .article(expectedArticle)
                 .build();

@@ -10,10 +10,9 @@ public class WithAuthUserSecurityContextFactory implements WithSecurityContextFa
     @Override
     public SecurityContext createSecurityContext(WithAuthUser annotation) {
         String email = annotation.email();
-        String name = annotation.name();
         Long id = annotation.id();
 
-        AuthUserDetails authUserDetails = AuthUserDetails.builder().id(id).email(email).name(name).build();
+        AuthUserDetails authUserDetails = AuthUserDetails.builder().id(id).email(email).build();
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(authUserDetails, "", null);
         SecurityContext context = SecurityContextHolder.getContext();

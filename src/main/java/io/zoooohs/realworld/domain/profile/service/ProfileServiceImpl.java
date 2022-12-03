@@ -20,7 +20,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileDto getProfile(String name, AuthUserDetails authUserDetails) {
-        UserEntity user = userRepository.findByName(name).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+        UserEntity user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
         Boolean following = followRepository.findByFolloweeIdAndFollowerId(user.getId(), authUserDetails.getId()).isPresent();
 
         return convertToProfile(user, following);
@@ -29,7 +29,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     @Override
     public ProfileDto followUser(String name, AuthUserDetails authUserDetails) {
-        UserEntity followee = userRepository.findByName(name).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+        UserEntity followee = userRepository.findByUsername(name).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
         UserEntity follower = UserEntity.builder().id(authUserDetails.getId()).build(); // myself
 
         followRepository.findByFolloweeIdAndFollowerId(followee.getId(), follower.getId())
@@ -44,7 +44,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     @Override
     public ProfileDto unfollowUser(String name, AuthUserDetails authUserDetails) {
-        UserEntity followee = userRepository.findByName(name).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+        UserEntity followee = userRepository.findByUsername(name).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
         UserEntity follower = UserEntity.builder().id(authUserDetails.getId()).build(); // myself
 
         FollowEntity follow = followRepository.findByFolloweeIdAndFollowerId(followee.getId(), follower.getId())
@@ -56,7 +56,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     private ProfileDto convertToProfile(UserEntity user, Boolean following) {
         return ProfileDto.builder()
-                .name(user.getName())
+                .username(user.getUsername())
                 .bio(user.getBio())
                 .image(user.getImage())
                 .following(following)

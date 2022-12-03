@@ -46,7 +46,7 @@ public class CommentServiceImpl implements CommentService {
                 .updatedAt(commentEntity.getUpdatedAt())
                 .body(commentEntity.getBody())
                 .author(ArticleDto.Author.builder()
-                        .name(commentEntity.getAuthor().getName())
+                        .username(commentEntity.getAuthor().getUsername())
                         .bio(commentEntity.getAuthor().getBio())
                         .image(commentEntity.getArticle().getAuthor().getImage())
                         .following(false)
@@ -72,14 +72,14 @@ public class CommentServiceImpl implements CommentService {
 
         List<CommentEntity> commentEntities = commentRepository.findByArticleId(articleId);
         return commentEntities.stream().map(commentEntity -> {
-            Boolean following = profileService.getProfile(commentEntity.getAuthor().getName(), authUserDetails).getFollowing();
+            Boolean following = profileService.getProfile(commentEntity.getAuthor().getUsername(), authUserDetails).getFollowing();
             return CommentDto.builder()
                     .id(commentEntity.getId())
                     .createdAt(commentEntity.getCreatedAt())
                     .updatedAt(commentEntity.getUpdatedAt())
                     .body(commentEntity.getBody())
                     .author(ArticleDto.Author.builder()
-                            .name(commentEntity.getAuthor().getName())
+                            .username(commentEntity.getAuthor().getUsername())
                             .bio(commentEntity.getAuthor().getBio())
                             .image(commentEntity.getArticle().getAuthor().getImage())
                             .following(following)

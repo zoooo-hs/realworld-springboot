@@ -33,8 +33,8 @@ public class ArticleRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        user1 = UserEntity.builder().name("username").email("test@test.com").password("password").bio("").build();
-        user2 = UserEntity.builder().name("username2").email("tes2t@test.com").password("password").bio("").build();
+        user1 = UserEntity.builder().username("username").email("test@test.com").password("password").bio("").build();
+        user2 = UserEntity.builder().username("username2").email("tes2t@test.com").password("password").bio("").build();
 
         userRepository.saveAll(List.of(user1, user2));
 
@@ -105,7 +105,7 @@ public class ArticleRepositoryTest {
         articleRepository.flush();
 
 
-        List<ArticleEntity> actual = articleRepository.findByFavoritedUsername(user1.getName(), null);
+        List<ArticleEntity> actual = articleRepository.findByFavoritedUsername(user1.getUsername(), null);
 
         assertEquals(1, actual.size());
         assertTrue(actual.get(0).getFavoriteList().stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(user1.getId())));
@@ -113,9 +113,9 @@ public class ArticleRepositoryTest {
 
     @Test
     void whenThereAreArticles_thenReturnArticlesByAuthorName() {
-        List<ArticleEntity> actual = articleRepository.findByAuthorName(user1.getName(), null);
+        List<ArticleEntity> actual = articleRepository.findByAuthorName(user1.getUsername(), null);
 
         assertEquals(1, actual.size());
-        assertEquals(actual.get(0).getAuthor().getName(), user1.getName());
+        assertEquals(actual.get(0).getAuthor().getUsername(), user1.getUsername());
     }
 }

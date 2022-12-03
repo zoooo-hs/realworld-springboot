@@ -10,5 +10,4 @@ import java.lang.annotation.RetentionPolicy;
 public @interface WithAuthUser {
     long id() default 1L;
     String email() default "email@email.com";
-    String name() default "username";
 }

@@ -31,14 +31,14 @@ public class SecurityBootAppTest {
     @Test
     void registration_and_login_return_tokens_and_can_get_current_user() throws Exception {
         // Registration
-        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").name("testman").password("password").build();
+        UserDto.Registration registration = UserDto.Registration.builder().email("test@test.com").username("testman").password("password").build();
         MvcResult mvcResult = mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registration))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user.email", Matchers.is(registration.getEmail())))
-                .andExpect(jsonPath("$.user.username", Matchers.is(registration.getName())))
+                .andExpect(jsonPath("$.user.username", Matchers.is(registration.getUsername())))
                 .andExpect(jsonPath("$.user.token", Matchers.notNullValue()))
                 .andReturn();
         String accessToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.user.token");
@@ -49,7 +49,7 @@ public class SecurityBootAppTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.email", Matchers.is(registration.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.is(registration.getName())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.is(registration.getUsername())));
 
         // Login
         UserDto.Login login = UserDto.Login.builder().email(registration.getEmail()).password(registration.getPassword()).build();
@@ -69,7 +69,7 @@ public class SecurityBootAppTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.email", Matchers.is(registration.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.is(registration.getName())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.is(registration.getUsername())));
     }
 
     private String addJwt(String accessToken) {

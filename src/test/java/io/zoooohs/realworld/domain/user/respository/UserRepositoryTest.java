@@ -25,7 +25,7 @@ public class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        savedUser = UserEntity.builder().name("username").email("test@test.com").password("password").bio("").build();
+        savedUser = UserEntity.builder().username("username").email("test@test.com").password("password").bio("").build();
         userRepository.save(savedUser);
     }
 
@@ -42,7 +42,7 @@ public class UserRepositoryTest {
     @MethodSource("validUserRegistration")
     @ParameterizedTest
     void whenUsernameOrEmailExist_thenUserEntityFound(String username, String email) {
-        List<UserEntity> actual = userRepository.findByNameOrEmail(username, email);
+        List<UserEntity> actual = userRepository.findByUsernameOrEmail(username, email);
 
         assertTrue(actual.size() > 0);
     }
@@ -66,9 +66,9 @@ public class UserRepositoryTest {
 
     @Test
     void whenNameExist_thenUserEntityFound() {
-        String name = savedUser.getName();
+        String name = savedUser.getUsername();
 
-        Optional<UserEntity> maybeUser = userRepository.findByName(name);
+        Optional<UserEntity> maybeUser = userRepository.findByUsername(name);
 
         assertTrue(maybeUser.isPresent());
     }

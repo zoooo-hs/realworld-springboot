@@ -22,7 +22,7 @@ public class FollowRepositoryTest {
     @Test
     void whenAlreadySavedFolloweeAndFollowerPair_thenThrow() {
         UserEntity follower = UserEntity.builder()
-                .name("follower")
+                .username("follower")
                 .password("password123")
                 .email("follower@email.com")
                 .bio("expected bio")
@@ -30,7 +30,7 @@ public class FollowRepositoryTest {
                 .build();
 
         UserEntity followee = UserEntity.builder()
-                .name("followee")
+                .username("followee")
                 .password("password123")
                 .email("followee@email.com")
                 .bio("expected bio")

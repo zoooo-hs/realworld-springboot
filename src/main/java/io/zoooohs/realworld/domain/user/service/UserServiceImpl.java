@@ -21,8 +21,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto registration(final UserDto.Registration registration) {
-        userRepository.findByNameOrEmail(registration.getName(), registration.getEmail()).stream().findAny().ifPresent(entity -> {throw new AppException(Error.DUPLICATED_USER);});
-        UserEntity userEntity = UserEntity.builder().name(registration.getName()).email(registration.getEmail()).password(passwordEncoder.encode(registration.getPassword())).bio("").build();
+        userRepository.findByUsernameOrEmail(registration.getUsername(), registration.getEmail()).stream().findAny().ifPresent(entity -> {throw new AppException(Error.DUPLICATED_USER);});
+        UserEntity userEntity = UserEntity.builder().username(registration.getUsername()).email(registration.getEmail()).password(passwordEncoder.encode(registration.getPassword())).bio("").build();
         userRepository.save(userEntity);
         return convertEntityToDto(userEntity);
     }
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserDto convertEntityToDto(UserEntity userEntity) {
-        return UserDto.builder().name(userEntity.getName()).bio(userEntity.getBio()).email(userEntity.getEmail()).image(userEntity.getImage()).token(jwtUtils.encode(userEntity.getEmail())).build();
+        return UserDto.builder().username(userEntity.getUsername()).bio(userEntity.getBio()).email(userEntity.getEmail()).image(userEntity.getImage()).token(jwtUtils.encode(userEntity.getEmail())).build();
     }
 
     @Transactional(readOnly = true)
@@ -49,11 +49,11 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto.Update update, AuthUserDetails authUserDetails) {
         UserEntity userEntity = userRepository.findById(authUserDetails.getId()).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
 
-        if (update.getName() != null) {
-            userRepository.findByName(update.getName())
+        if (update.getUsername() != null) {
+            userRepository.findByUsername(update.getUsername())
                     .filter(found -> !found.getId().equals(userEntity.getId()))
                     .ifPresent(found -> {throw new AppException(Error.DUPLICATED_USER);});
-            userEntity.setName(update.getName());
+            userEntity.setUsername(update.getUsername());
         }
 
         if (update.getEmail() != null) {
