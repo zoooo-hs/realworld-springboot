@@ -1,5 +1,6 @@
 package io.zoooohs.realworld.domain.article.dto;
 
+import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
@@ -25,19 +26,7 @@ public class ArticleDto {
     private LocalDateTime updatedAt;
     private Boolean favorited;
     private Long favoritesCount;
-    private Author author;
-
-    // TODO: ProfileDTO 통합 필요
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Author {
-        private String username;
-        private String bio;
-        private String image;
-        private Boolean following;
-    }
+    private ProfileDto author;
 
     @Getter
     @Builder

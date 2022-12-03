@@ -54,6 +54,14 @@ public class ProfileServiceImpl implements ProfileService {
         return convertToProfile(followee, false);
     }
 
+    @Override
+    public ProfileDto getProfileByUserId(Long userId, AuthUserDetails authUserDetails) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+        Boolean following = followRepository.findByFolloweeIdAndFollowerId(user.getId(), authUserDetails.getId()).isPresent();
+
+        return convertToProfile(user, following);
+    }
+
     private ProfileDto convertToProfile(UserEntity user, Boolean following) {
         return ProfileDto.builder()
                 .username(user.getUsername())

@@ -56,6 +56,7 @@ public class ArticleServiceImplTest {
     private UserEntity author;
     private ArticleEntity expectedArticle;
     private LocalDateTime beforeWrite;
+    private ProfileDto authorProfile;
 
     @BeforeEach
     void setUp() {
@@ -81,6 +82,10 @@ public class ArticleServiceImplTest {
                 .bio("bio")
                 .image("photo-path")
                 .build();
+
+        authorProfile = ProfileDto.builder()
+                .username(author.getUsername())
+                .following(true).build();
 
         expectedArticle = ArticleEntity.builder()
                 .id(1L)
@@ -120,7 +125,7 @@ public class ArticleServiceImplTest {
         String slug = "article-title";
 
         when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
-        when(profileService.getProfile(eq(author.getUsername()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfileByUserId(eq(author.getId()), any(AuthUserDetails.class))).thenReturn(authorProfile);
 
         ArticleDto actual = articleService.getArticle(slug, authUserDetails);
 
@@ -134,7 +139,7 @@ public class ArticleServiceImplTest {
         ArticleDto.Update updateArticle = ArticleDto.Update.builder().title("new title").build();
 
         when(articleRepository.findBySlug(eq(slug))).thenReturn(Optional.ofNullable(expectedArticle));
-        when(profileService.getProfile(eq(author.getUsername()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfileByUserId(eq(author.getId()), any(AuthUserDetails.class))).thenReturn(authorProfile);
 
         ArticleDto actual = articleService.updateArticle(slug, updateArticle, authUserDetails);
 
@@ -156,6 +161,7 @@ public class ArticleServiceImplTest {
     void whenValidUserFeed_thenReturnMultipleArticle() {
         when(followRepository.findByFollowerId(eq(authUserDetails.getId()))).thenReturn(List.of(FollowEntity.builder().followee(author).build()));
         when(articleRepository.findByAuthorIdInOrderByCreatedAtDesc(anyList(), any())).thenReturn(List.of(expectedArticle));
+        when(profileService.getProfileByUserId(eq(author.getId()), any(AuthUserDetails.class))).thenReturn(authorProfile);
 
         FeedParams feedParams = FeedParams.builder().offset(0).limit(1).build();
 
@@ -182,7 +188,7 @@ public class ArticleServiceImplTest {
                         }
                     }
                 });
-        when(profileService.getProfile(eq(author.getUsername()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfileByUserId(eq(author.getId()), any(AuthUserDetails.class))).thenReturn(authorProfile);
 
 
         ArticleDto actual = articleService.favoriteArticle(expectedArticle.getSlug(), authUserDetails);
@@ -210,7 +216,7 @@ public class ArticleServiceImplTest {
                         return Optional.ofNullable(expectedArticle);
                     }
                 });
-        when(profileService.getProfile(eq(author.getUsername()), any(AuthUserDetails.class))).thenReturn(ProfileDto.builder().following(false).build());
+        when(profileService.getProfileByUserId(eq(author.getId()), any(AuthUserDetails.class))).thenReturn(authorProfile);
 
         ArticleDto actual = articleService.unfavoriteArticle(expectedArticle.getSlug(), authUserDetails);
 
@@ -236,6 +242,7 @@ public class ArticleServiceImplTest {
         query.setAuthor("testUser");
 
         when(articleRepository.findByAuthorName(eq("testUser"), any())).thenReturn(List.of(expectedArticle));
+        when(profileService.getProfileByUserId(eq(author.getId()), any(AuthUserDetails.class))).thenReturn(authorProfile);
 
         List<ArticleDto> actual = articleService.listArticle(query, authUserDetails);
 
@@ -250,6 +257,7 @@ public class ArticleServiceImplTest {
         expectedArticle.setFavoriteList(List.of(FavoriteEntity.builder().user(UserEntity.builder().id(1L).username("username").build()).build()));
 
         when(articleRepository.findByFavoritedUsername(eq("username"), any())).thenReturn(List.of(expectedArticle));
+        when(profileService.getProfileByUserId(eq(author.getId()), any(AuthUserDetails.class))).thenReturn(authorProfile);
 
         List<ArticleDto> actual = articleService.listArticle(query, authUserDetails);
 

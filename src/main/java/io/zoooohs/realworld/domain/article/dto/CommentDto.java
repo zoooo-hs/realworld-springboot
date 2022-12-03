@@ -1,5 +1,6 @@
 package io.zoooohs.realworld.domain.article.dto;
 
+import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class CommentDto {
     private LocalDateTime updatedAt;
     @NotNull
     private String body;
-    private ArticleDto.Author author;
+    private ProfileDto author;
 
     @Getter
     @Builder

@@ -7,6 +7,7 @@ import io.zoooohs.realworld.domain.article.entity.CommentEntity;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.repository.CommentRepository;
 import io.zoooohs.realworld.domain.article.servie.CommentServiceImpl;
+import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.security.AuthUserDetails;
@@ -42,6 +43,8 @@ public class CommentServiceImplTest {
     ArticleEntity expectedArticle;
     CommentEntity expectedComment;
 
+    ProfileDto authorProfile;
+
     @BeforeEach
     void setUp() {
         commentService = new CommentServiceImpl(articleRepository, commentRepository, profileService);
@@ -64,6 +67,13 @@ public class CommentServiceImplTest {
 
         author = UserEntity.builder()
                 .id(authUserDetails.getId())
+                .email(authUserDetails.getEmail())
+                .username("username")
+                .build();
+
+        authorProfile = ProfileDto.builder()
+                .username("username")
+                .following(true)
                 .build();
 
         expectedArticle = ArticleEntity.builder()
@@ -89,12 +99,12 @@ public class CommentServiceImplTest {
         CommentDto commentDto = CommentDto.builder().body("body").build();
 
         when(articleRepository.findBySlug(eq(expectedSlug))).thenReturn(Optional.of(expectedArticle));
+        when(profileService.getProfileByUserId(eq(author.getId()), any())).thenReturn(authorProfile);
 
         CommentDto actual = commentService.addCommentsToAnArticle(expectedSlug, commentDto, authUserDetails);
 
         assertEquals(commentDto.getBody(), actual.getBody());
-        // TODO: author -> profile 로 바꾸고 다시 테스트 -> 다른 author사용하는 dto에도 name, email not null test
-//        assertEquals(authUserDetails.getName(), actual.getAuthor().getName());
+        assertEquals(author.getUsername(), actual.getAuthor().getUsername());
     }
 
     @Test

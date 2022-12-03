@@ -8,6 +8,7 @@ import io.zoooohs.realworld.domain.article.model.FeedParams;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.repository.FavoriteRepository;
 import io.zoooohs.realworld.domain.common.entity.BaseEntity;
+import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import io.zoooohs.realworld.domain.profile.entity.FollowEntity;
 import io.zoooohs.realworld.domain.profile.repository.FollowRepository;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
@@ -58,32 +59,26 @@ public class ArticleServiceImpl implements ArticleService {
         articleEntity.setTagList(tagList);
 
         articleEntity = articleRepository.save(articleEntity);
-        return convertEntityToDto(articleEntity, false, 0L, false);
+        return convertEntityToDto(articleEntity, false, 0L, authUserDetails);
     }
 
     @Override
     public ArticleDto getArticle(String slug, AuthUserDetails authUserDetails) {
         ArticleEntity found = articleRepository.findBySlug(slug).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
-        Boolean following = profileService.getProfile(found.getAuthor().getUsername(), authUserDetails).getFollowing();
         List<FavoriteEntity> favorites = found.getFavoriteList();
         Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUserDetails.getId()));
         int favoriteCount = favorites.size();
-        return convertEntityToDto(found, favorited, (long) favoriteCount, following);
+        return convertEntityToDto(found, favorited, (long) favoriteCount, authUserDetails);
     }
 
-    private ArticleDto convertEntityToDto(ArticleEntity entity, Boolean favorited, Long favoritesCount, Boolean following) {
-        // TODO: author, following -> profile service에서 get profile로 끝내기
+    private ArticleDto convertEntityToDto(ArticleEntity entity, Boolean favorited, Long favoritesCount, AuthUserDetails authUserDetails) {
+        ProfileDto author = profileService.getProfileByUserId(entity.getAuthor().getId(), authUserDetails);
         return ArticleDto.builder()
                 .slug(entity.getSlug())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .body(entity.getBody())
-                .author(ArticleDto.Author.builder()
-                        .username(entity.getAuthor().getUsername())
-                        .bio(entity.getAuthor().getBio())
-                        .image(entity.getAuthor().getImage())
-                        .following(following)
-                        .build())
+                .author(author)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .favorited(favorited)
@@ -130,7 +125,7 @@ public class ArticleServiceImpl implements ArticleService {
             List<FavoriteEntity> favorites = entity.getFavoriteList();
             Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUserDetails.getId()));
             int favoriteCount = favorites.size();
-            return convertEntityToDto(entity, favorited, (long) favoriteCount, true);
+            return convertEntityToDto(entity, favorited, (long) favoriteCount, authUserDetails);
         }).collect(Collectors.toList());
     }
 
@@ -186,15 +181,11 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private List<ArticleDto> convertToArticleList(List<ArticleEntity> articleEntities, AuthUserDetails authUserDetails) {
-        List<Long> authorIds = articleEntities.stream().map(ArticleEntity::getAuthor).map(BaseEntity::getId).collect(Collectors.toList());
-        List<Long> followeeIds = followRepository.findByFollowerIdAndFolloweeIdIn(authUserDetails.getId(), authorIds).stream().map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
-
         return articleEntities.stream().map(entity -> {
             List<FavoriteEntity> favorites = entity.getFavoriteList();
             Boolean favorited = favorites.stream().anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(authUserDetails.getId()));
             int favoriteCount = favorites.size();
-            Boolean following = followeeIds.stream().anyMatch(followeeId -> followeeId.equals(entity.getAuthor().getId()));
-            return convertEntityToDto(entity, favorited, (long) favoriteCount, following);
+            return convertEntityToDto(entity, favorited, (long) favoriteCount, authUserDetails);
         }).collect(Collectors.toList());
     }
 }

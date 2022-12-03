@@ -1,12 +1,12 @@
 package io.zoooohs.realworld.domain.article.servie;
 
-import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.dto.CommentDto;
 import io.zoooohs.realworld.domain.article.entity.ArticleEntity;
 import io.zoooohs.realworld.domain.article.entity.CommentEntity;
 import io.zoooohs.realworld.domain.article.repository.ArticleRepository;
 import io.zoooohs.realworld.domain.article.repository.CommentRepository;
 import io.zoooohs.realworld.domain.common.entity.BaseEntity;
+import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import io.zoooohs.realworld.domain.profile.service.ProfileService;
 import io.zoooohs.realworld.domain.user.entity.UserEntity;
 import io.zoooohs.realworld.exception.AppException;
@@ -40,18 +40,7 @@ public class CommentServiceImpl implements CommentService {
                 .build();
         commentRepository.save(commentEntity);
 
-        return CommentDto.builder()
-                .id(commentEntity.getId())
-                .createdAt(commentEntity.getCreatedAt())
-                .updatedAt(commentEntity.getUpdatedAt())
-                .body(commentEntity.getBody())
-                .author(ArticleDto.Author.builder()
-                        .username(commentEntity.getAuthor().getUsername())
-                        .bio(commentEntity.getAuthor().getBio())
-                        .image(commentEntity.getArticle().getAuthor().getImage())
-                        .following(false)
-                        .build())
-                .build();
+        return convertToDTO(authUserDetails, commentEntity);
     }
 
     @Transactional
@@ -71,20 +60,17 @@ public class CommentServiceImpl implements CommentService {
         Long articleId = articleRepository.findBySlug(slug).map(BaseEntity::getId).orElseThrow(() -> new AppException(Error.ARTICLE_NOT_FOUND));
 
         List<CommentEntity> commentEntities = commentRepository.findByArticleId(articleId);
-        return commentEntities.stream().map(commentEntity -> {
-            Boolean following = profileService.getProfile(commentEntity.getAuthor().getUsername(), authUserDetails).getFollowing();
-            return CommentDto.builder()
-                    .id(commentEntity.getId())
-                    .createdAt(commentEntity.getCreatedAt())
-                    .updatedAt(commentEntity.getUpdatedAt())
-                    .body(commentEntity.getBody())
-                    .author(ArticleDto.Author.builder()
-                            .username(commentEntity.getAuthor().getUsername())
-                            .bio(commentEntity.getAuthor().getBio())
-                            .image(commentEntity.getArticle().getAuthor().getImage())
-                            .following(following)
-                            .build())
-                    .build();
-        }).collect(Collectors.toList());
+        return commentEntities.stream().map(commentEntity -> convertToDTO(authUserDetails, commentEntity)).collect(Collectors.toList());
+    }
+
+    private CommentDto convertToDTO(AuthUserDetails authUserDetails, CommentEntity commentEntity) {
+        ProfileDto author = profileService.getProfileByUserId(commentEntity.getAuthor().getId(), authUserDetails);
+        return CommentDto.builder()
+                .id(commentEntity.getId())
+                .createdAt(commentEntity.getCreatedAt())
+                .updatedAt(commentEntity.getUpdatedAt())
+                .body(commentEntity.getBody())
+                .author(author)
+                .build();
     }
 }

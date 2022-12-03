@@ -6,6 +6,7 @@ import io.zoooohs.realworld.domain.article.dto.ArticleDto;
 import io.zoooohs.realworld.domain.article.dto.CommentDto;
 import io.zoooohs.realworld.domain.article.servie.ArticleService;
 import io.zoooohs.realworld.domain.article.servie.CommentService;
+import io.zoooohs.realworld.domain.profile.dto.ProfileDto;
 import io.zoooohs.realworld.security.AuthUserDetails;
 import io.zoooohs.realworld.security.JWTAuthFilter;
 import org.hamcrest.Matchers;
@@ -55,7 +56,7 @@ public class ArticlesControllerTest {
     @MockBean
     CommentService commentService;
 
-    private ArticleDto.Author author;
+    private ProfileDto author;
     private ArticleDto article;
     private ArticleDto.SingleArticle singleArticle;
     private String slug;
@@ -63,7 +64,7 @@ public class ArticlesControllerTest {
 
     @BeforeEach
     void setUp() {
-        author =  ArticleDto.Author.builder().username("username").build();
+        author =  ProfileDto.builder().username("username").build();
         article = ArticleDto.builder()
                 .title("article title")
                 .description("description")
@@ -137,7 +138,7 @@ public class ArticlesControllerTest {
                 .description("description")
                 .body("hi there")
                 .tagList(List.of("tag1", "tag2"))
-                .author(ArticleDto.Author.builder().following(true).build())
+                .author(ProfileDto.builder().following(true).build())
                 .build();
 
         when(articleService.feedArticles(any(AuthUserDetails.class), any())).thenReturn(List.of(article));

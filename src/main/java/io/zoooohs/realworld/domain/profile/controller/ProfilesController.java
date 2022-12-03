@@ -14,17 +14,17 @@ public class ProfilesController {
     private final ProfileService profileService;
 
     @GetMapping("/{username}")
-    public ProfileDto getProfile(@PathVariable("username") String name, @AuthenticationPrincipal AuthUserDetails authUserDetails) {
-        return profileService.getProfile(name, authUserDetails);
+    public ProfileDto.Single getProfile(@PathVariable("username") String name, @AuthenticationPrincipal AuthUserDetails authUserDetails) {
+        return new ProfileDto.Single(profileService.getProfile(name, authUserDetails));
     }
 
     @PostMapping("/{username}/follow")
-    public ProfileDto followUser(@PathVariable("username") String name, @AuthenticationPrincipal AuthUserDetails authUserDetails) {
-        return profileService.followUser(name, authUserDetails);
+    public ProfileDto.Single followUser(@PathVariable("username") String name, @AuthenticationPrincipal AuthUserDetails authUserDetails) {
+        return new ProfileDto.Single(profileService.followUser(name, authUserDetails));
     }
 
     @DeleteMapping("/{username}/follow")
-    public ProfileDto unfollowUser(@PathVariable("username") String name, @AuthenticationPrincipal AuthUserDetails authUserDetails) {
-        return profileService.unfollowUser(name, authUserDetails);
+    public ProfileDto.Single unfollowUser(@PathVariable("username") String name, @AuthenticationPrincipal AuthUserDetails authUserDetails) {
+        return new ProfileDto.Single(profileService.unfollowUser(name, authUserDetails));
     }
 }
