@@ -39,6 +39,31 @@ class ProfileServiceTest {
     }
 
     @Test
+    void getProfileCurrentUserIdNullReturnFollowingFalse() {
+        // GIVEN
+        User savedUser = User.builder()
+                .id(userIdGenerator.generate())
+                .email("123@456.zz")
+                .username("name")
+                .bio("some bio")
+                .image("http://image-a/a.jpg")
+                .password(passwordManager.encrypt("123123"))
+                .build();
+        userRepository.save(savedUser);
+
+        // WHEN
+        ProfileResponse profile = sut.getProfile(null, "name");
+
+        // THEN
+        Assertions.assertAll(
+                () -> assertEquals("name", profile.username()),
+                () -> assertEquals("some bio", profile.bio()),
+                () -> assertEquals("http://image-a/a.jpg", profile.image()),
+                () -> assertFalse(profile.following())
+        );
+    }
+
+    @Test
     void getProfileReturnsProfileResponseWithFollowingField() {
         // GIVEN
         User savedUser = User.builder()

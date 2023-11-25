@@ -20,9 +20,14 @@ public class ProfileService implements ProfileUseCase {
     public ProfileResponse getProfile(UserId currentUserId, String username) {
         User foundUser = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFound::new);
-        User currentUser = userRepository.getByUserId(currentUserId);
 
-        boolean following = currentUser.isFollowing(foundUser.getId());
+        boolean following;
+        if (currentUserId == null) {
+            following = false;
+        } else {
+            User currentUser = userRepository.getByUserId(currentUserId);
+            following = currentUser.isFollowing(foundUser.getId());
+        }
 
         return createProfileResponse(foundUser, following);
     }
