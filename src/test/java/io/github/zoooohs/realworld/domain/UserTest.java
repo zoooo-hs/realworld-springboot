@@ -1,6 +1,6 @@
 package io.github.zoooohs.realworld.domain;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.UserIdGenerator;
+import io.github.zoooohs.realworld.application.port.out.persistance.user.UserIdGenerator;
 import io.github.zoooohs.realworld.domain.exception.AlreadyAdded;
 import io.github.zoooohs.realworld.domain.exception.FollowingNotFound;
 import io.github.zoooohs.realworld.domain.model.User;
@@ -77,7 +77,7 @@ class UserTest {
                 .build();
 
         // WHEN
-        boolean following = user.isFollowing(new UserId(1L));
+        boolean following = user.isFollowing(new UserId("1"));
 
         // THEN
         Assertions.assertTrue(following);
@@ -94,7 +94,7 @@ class UserTest {
                 .build();
 
         // WHEN
-        boolean following = user.isFollowing(new UserId(100L));
+        boolean following = user.isFollowing(new UserId("100"));
 
         // THEN
         Assertions.assertFalse(following);
@@ -111,7 +111,7 @@ class UserTest {
                 .build();
 
         // WHEN
-        boolean following = user.isFollowing(new UserId(1L));
+        boolean following = user.isFollowing(new UserId("1"));
 
         // THEN
         Assertions.assertFalse(following);
@@ -128,7 +128,7 @@ class UserTest {
                 .build();
 
         // WHEN
-        boolean following = user.isFollowing(new UserId(1L));
+        boolean following = user.isFollowing(new UserId("1"));
 
         // THEN
         Assertions.assertFalse(following);
@@ -146,7 +146,7 @@ class UserTest {
                 .build();
 
         // WHEN, THEN
-        Assertions.assertThrows(AlreadyAdded.class, () -> user.follow(new UserId(1L)));
+        Assertions.assertThrows(AlreadyAdded.class, () -> user.follow(new UserId("1")));
     }
 
     @Test
@@ -160,10 +160,10 @@ class UserTest {
                 .followings(new ArrayList<>())
                 .build();
 
-        user.follow(new UserId(1L));
+        user.follow(new UserId("1"));
 
         // WHEN,
-        boolean following = user.isFollowing(new UserId(1L));
+        boolean following = user.isFollowing(new UserId("1"));
 
         // THEN
         Assertions.assertTrue(following);
@@ -180,10 +180,10 @@ class UserTest {
                 .followings(null)
                 .build();
 
-        user.follow(new UserId(1L));
+        user.follow(new UserId("1"));
 
         // WHEN,
-        boolean following = user.isFollowing(new UserId(1L));
+        boolean following = user.isFollowing(new UserId("1"));
 
         // THEN
         Assertions.assertTrue(following);
@@ -200,14 +200,14 @@ class UserTest {
                 .build();
 
         // WHEN, THEN
-        Assertions.assertThrows(FollowingNotFound.class, () -> user.unfollow(new UserId(1L)));
+        Assertions.assertThrows(FollowingNotFound.class, () -> user.unfollow(new UserId("1")));
     }
 
     @Test
     void unfollowMakeIsFollowingFalse() throws Exception {
         // GIVEN
         List<UserId> followings = new ArrayList<>();
-        followings.add(new UserId(1L));
+        followings.add(new UserId("1"));
         User user = User.builder()
                 .id(newId())
                 .email("123@456.zz")
@@ -217,9 +217,9 @@ class UserTest {
                 .build();
 
         // WHEN
-        user.unfollow(new UserId(1L));
+        user.unfollow(new UserId("1"));
 
         // THEN
-        Assertions.assertFalse(user.isFollowing(new UserId(1L)));
+        Assertions.assertFalse(user.isFollowing(new UserId("1")));
     }
 }

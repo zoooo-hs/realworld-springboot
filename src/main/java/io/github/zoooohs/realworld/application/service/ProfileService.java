@@ -5,13 +5,15 @@ import io.github.zoooohs.realworld.application.exception.NotFollowing;
 import io.github.zoooohs.realworld.application.exception.UserNotFound;
 import io.github.zoooohs.realworld.application.model.ProfileResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.ProfileUseCase;
-import io.github.zoooohs.realworld.application.port.out.persistance.UserRepository;
+import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
 import io.github.zoooohs.realworld.domain.exception.AlreadyAdded;
 import io.github.zoooohs.realworld.domain.exception.FollowingNotFound;
 import io.github.zoooohs.realworld.domain.model.User;
 import io.github.zoooohs.realworld.domain.model.UserId;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
 @RequiredArgsConstructor
 public class ProfileService implements ProfileUseCase {
     private final UserRepository userRepository;

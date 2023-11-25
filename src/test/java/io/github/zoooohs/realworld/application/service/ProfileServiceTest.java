@@ -35,7 +35,7 @@ class ProfileServiceTest {
     @Test
     void getProfileUsernameNotFound() {
         // GIVEN, WHEN, THEN
-        Assertions.assertThrows(UserNotFound.class, () -> sut.getProfile(new UserId(1L), "username"));
+        Assertions.assertThrows(UserNotFound.class, () -> sut.getProfile(new UserId("1"), "username"));
     }
 
     @Test
@@ -84,7 +84,7 @@ class ProfileServiceTest {
         userRepository.save(currentUser);
 
         // WHEN
-        ProfileResponse profile = sut.getProfile(new UserId(1L), "name");
+        ProfileResponse profile = sut.getProfile(new UserId("1"), "name");
 
         // THEN
         Assertions.assertAll(
@@ -110,7 +110,7 @@ class ProfileServiceTest {
 
 
         // WHEN
-        ProfileResponse profile = sut.getProfile(new UserId(0L), "name");
+        ProfileResponse profile = sut.getProfile(new UserId("0"), "name");
 
         // THEN
         Assertions.assertAll(
@@ -139,12 +139,12 @@ class ProfileServiceTest {
                 .email("123@456.yy")
                 .username("currentUser")
                 .password(passwordManager.encrypt("123123"))
-                .followings(List.of(new UserId(0L)))
+                .followings(List.of(new UserId("0")))
                 .build();
         userRepository.save(currentUser);
 
         // WHEN
-        ProfileResponse profile = sut.getProfile(new UserId(1L), "followee");
+        ProfileResponse profile = sut.getProfile(new UserId("1"), "followee");
 
         // THEN
         Assertions.assertAll(
@@ -167,7 +167,7 @@ class ProfileServiceTest {
         userRepository.save(currentUser);
 
         // WHEN, THEN
-        Assertions.assertThrows(UserNotFound.class, () -> sut.follow(new UserId(0L), "followee"));
+        Assertions.assertThrows(UserNotFound.class, () -> sut.follow(new UserId("0"), "followee"));
     }
 
     @Test
@@ -194,7 +194,7 @@ class ProfileServiceTest {
 
 
         // WHEN, THEN
-        Assertions.assertThrows(AlreadyFollowed.class, () -> sut.follow(new UserId(1L), "followee"));
+        Assertions.assertThrows(AlreadyFollowed.class, () -> sut.follow(new UserId("1"), "followee"));
     }
 
     @Test
@@ -219,7 +219,7 @@ class ProfileServiceTest {
         userRepository.save(currentUser);
 
         // WHEN
-        ProfileResponse profile = sut.follow(new UserId(1L), "followee");
+        ProfileResponse profile = sut.follow(new UserId("1"), "followee");
 
         // THEN
         Assertions.assertAll(
@@ -227,7 +227,7 @@ class ProfileServiceTest {
                 () -> assertEquals("some bio", profile.bio()),
                 () -> assertEquals("http://image-a/a.jpg", profile.image()),
                 () -> assertTrue(profile.following()),
-                () -> assertTrue(sut.getProfile(new UserId(1L), "followee").following())
+                () -> assertTrue(sut.getProfile(new UserId("1"), "followee").following())
         );
     }
 
@@ -243,7 +243,7 @@ class ProfileServiceTest {
         userRepository.save(currentUser);
 
         // WHEN, THEN
-        Assertions.assertThrows(UserNotFound.class, () -> sut.unfollow(new UserId(0L), "followee"));
+        Assertions.assertThrows(UserNotFound.class, () -> sut.unfollow(new UserId("0"), "followee"));
     }
 
     @Test
@@ -268,7 +268,7 @@ class ProfileServiceTest {
         userRepository.save(currentUser);
 
         // WHEN, THEN
-        Assertions.assertThrows(NotFollowing.class, () -> sut.unfollow(new UserId(1L), "followee"));
+        Assertions.assertThrows(NotFollowing.class, () -> sut.unfollow(new UserId("1"), "followee"));
     }
 
     @Test
@@ -296,7 +296,7 @@ class ProfileServiceTest {
         userRepository.save(currentUser);
 
         // WHEN
-        ProfileResponse profile = sut.unfollow(new UserId(1L), "followee");
+        ProfileResponse profile = sut.unfollow(new UserId("1"), "followee");
 
         // THEN
         Assertions.assertAll(
@@ -304,7 +304,7 @@ class ProfileServiceTest {
                 () -> assertEquals("some bio", profile.bio()),
                 () -> assertEquals("http://image-a/a.jpg", profile.image()),
                 () -> assertFalse(profile.following()),
-                () -> assertFalse(sut.getProfile(new UserId(1L), "followee").following())
+                () -> assertFalse(sut.getProfile(new UserId("1"), "followee").following())
         );
     }
 }

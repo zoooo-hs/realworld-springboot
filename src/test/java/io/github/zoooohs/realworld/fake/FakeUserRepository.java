@@ -1,6 +1,6 @@
 package io.github.zoooohs.realworld.fake;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.UserRepository;
+import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
 import io.github.zoooohs.realworld.domain.model.User;
 import io.github.zoooohs.realworld.domain.model.UserId;
 

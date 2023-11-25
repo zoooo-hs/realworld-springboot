@@ -129,7 +129,7 @@ class AuthenticationServiceTest {
     @Test
     void getCurrentUserReturnCurrentUserIdUsersResponse() {
         // GIVEN
-        UserId currentUserId = new UserId(0L);
+        UserId currentUserId = new UserId("0");
 
         // WHEN
         UsersResponse currentUser = sut.getCurrentUser(currentUserId);
@@ -145,7 +145,7 @@ class AuthenticationServiceTest {
     @Test
     void updateUserEmailDuplication() {
         // GIVEN
-        UserId currentUserId = new UserId(0L);
+        UserId currentUserId = new UserId("0");
         UpdateUserRequest emailDuplicatedUpdateRequest =
                 UpdateUserRequest.builder()
                         .email("123@456.zz")
@@ -158,7 +158,7 @@ class AuthenticationServiceTest {
     @Test
     void updateUserUsernameDuplication() {
         // GIVEN
-        UserId currentUserId = new UserId(0L);
+        UserId currentUserId = new UserId("0");
         UpdateUserRequest emailDuplicatedUpdateRequest =
                 UpdateUserRequest.builder()
                         .username("name")
@@ -170,7 +170,7 @@ class AuthenticationServiceTest {
 
     @Test
     void updateReturnUsersResponseWithUpdatedValueAndUpdatedDB() {
-        UserId currentUserId = new UserId(0L);
+        UserId currentUserId = new UserId("0");
         UpdateUserRequest emailDuplicatedUpdateRequest =
                 UpdateUserRequest.builder()
                         .email("new@email.com")

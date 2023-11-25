@@ -1,4 +1,4 @@
-package io.github.zoooohs.realworld.application.port.out.persistance;
+package io.github.zoooohs.realworld.application.port.out.persistance.user;
 
 import io.github.zoooohs.realworld.domain.model.User;
 import io.github.zoooohs.realworld.domain.model.UserId;

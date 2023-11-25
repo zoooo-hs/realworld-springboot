@@ -8,14 +8,16 @@ import io.github.zoooohs.realworld.application.model.RegistrationRequest;
 import io.github.zoooohs.realworld.application.model.UpdateUserRequest;
 import io.github.zoooohs.realworld.application.model.UsersResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.AuthenticationUseCase;
-import io.github.zoooohs.realworld.application.port.out.persistance.UserIdGenerator;
-import io.github.zoooohs.realworld.application.port.out.persistance.UserRepository;
+import io.github.zoooohs.realworld.application.port.out.persistance.user.UserIdGenerator;
+import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
 import io.github.zoooohs.realworld.application.port.out.security.PasswordManager;
 import io.github.zoooohs.realworld.application.port.out.security.TokenWriter;
 import io.github.zoooohs.realworld.domain.model.User;
 import io.github.zoooohs.realworld.domain.model.UserId;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
 @RequiredArgsConstructor
 public class AuthenticationService implements AuthenticationUseCase {
     private final UserRepository userRepository;

@@ -1,13 +1,13 @@
-package io.github.zoooohs.realworld.infrastructure.configuration;
+package io.github.zoooohs.realworld.infrastructure.configuration.rest;
 
 import io.github.zoooohs.realworld.application.exception.RealWorldException;
-import io.github.zoooohs.realworld.infrastructure.model.HttpErrorResponse;
+import io.github.zoooohs.realworld.infrastructure.model.rest.HttpErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(basePackageClasses = HttpControllerAdvice.class)
+@RestControllerAdvice
 public class HttpControllerAdvice {
     @ExceptionHandler(RealWorldException.class)
     public ResponseEntity<HttpErrorResponse> unauthorizedRequest(RealWorldException e) {

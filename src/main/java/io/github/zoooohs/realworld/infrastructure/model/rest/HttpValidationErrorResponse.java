@@ -1,4 +1,4 @@
-package io.github.zoooohs.realworld.infrastructure.model;
+package io.github.zoooohs.realworld.infrastructure.model.rest;
 
 import java.util.List;
 

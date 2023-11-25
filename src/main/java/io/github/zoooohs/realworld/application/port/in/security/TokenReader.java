@@ -1,7 +1,7 @@
 package io.github.zoooohs.realworld.application.port.in.security;
 
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.application.model.TokenPayload;
 
 public interface TokenReader {
-    UserId getUserId(String token);
+    TokenPayload read(String token);
 }

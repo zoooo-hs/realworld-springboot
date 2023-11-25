@@ -1,6 +1,6 @@
 package io.github.zoooohs.realworld.fake;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.UserIdGenerator;
+import io.github.zoooohs.realworld.application.port.out.persistance.user.UserIdGenerator;
 import io.github.zoooohs.realworld.domain.model.UserId;
 
 public class FakeUserIdGenerator implements UserIdGenerator {
@@ -17,6 +17,6 @@ public class FakeUserIdGenerator implements UserIdGenerator {
     @Override
     public UserId generate() {
         currentId++;
-        return new UserId(currentId);
+        return new UserId(currentId.toString());
     }
 }
