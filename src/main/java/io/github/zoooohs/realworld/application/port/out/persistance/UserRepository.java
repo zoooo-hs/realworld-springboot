@@ -1,7 +1,7 @@
 package io.github.zoooohs.realworld.application.port.out.persistance;
 
-import io.github.zoooohs.realworld.domain.User;
-import io.github.zoooohs.realworld.domain.UserId;
+import io.github.zoooohs.realworld.domain.model.User;
+import io.github.zoooohs.realworld.domain.model.UserId;
 
 import java.util.Optional;
 
@@ -15,4 +15,6 @@ public interface UserRepository {
     Optional<User> findByEmail(String email);
 
     User getByUserId(UserId currentUserId);
+
+    Optional<User> findByUsername(String username);
 }

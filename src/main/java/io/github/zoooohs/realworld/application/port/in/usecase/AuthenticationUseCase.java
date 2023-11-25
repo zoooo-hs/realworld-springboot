@@ -4,7 +4,7 @@ import io.github.zoooohs.realworld.application.model.AuthenticationRequest;
 import io.github.zoooohs.realworld.application.model.RegistrationRequest;
 import io.github.zoooohs.realworld.application.model.UpdateUserRequest;
 import io.github.zoooohs.realworld.application.model.UsersResponse;
-import io.github.zoooohs.realworld.domain.UserId;
+import io.github.zoooohs.realworld.domain.model.UserId;
 
 public interface AuthenticationUseCase {
     UsersResponse registration(RegistrationRequest registrationRequest);

@@ -12,8 +12,8 @@ import io.github.zoooohs.realworld.application.port.out.persistance.UserIdGenera
 import io.github.zoooohs.realworld.application.port.out.persistance.UserRepository;
 import io.github.zoooohs.realworld.application.port.out.security.PasswordManager;
 import io.github.zoooohs.realworld.application.port.out.security.TokenWriter;
-import io.github.zoooohs.realworld.domain.User;
-import io.github.zoooohs.realworld.domain.UserId;
+import io.github.zoooohs.realworld.domain.model.User;
+import io.github.zoooohs.realworld.domain.model.UserId;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

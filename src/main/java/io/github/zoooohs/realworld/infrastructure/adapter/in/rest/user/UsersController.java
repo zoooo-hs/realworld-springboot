@@ -6,7 +6,7 @@ import io.github.zoooohs.realworld.application.model.UpdateUserRequest;
 import io.github.zoooohs.realworld.application.model.UsersResponse;
 import io.github.zoooohs.realworld.application.port.in.security.TokenReader;
 import io.github.zoooohs.realworld.application.port.in.usecase.AuthenticationUseCase;
-import io.github.zoooohs.realworld.domain.UserId;
+import io.github.zoooohs.realworld.domain.model.UserId;
 import io.github.zoooohs.realworld.infrastructure.model.AuthenticationHttpRequest;
 import io.github.zoooohs.realworld.infrastructure.model.RegistrationHttpRequest;
 import io.github.zoooohs.realworld.infrastructure.model.SingleUserResponse;

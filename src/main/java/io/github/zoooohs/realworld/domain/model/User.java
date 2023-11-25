@@ -1,10 +1,18 @@
-package io.github.zoooohs.realworld.domain;
+package io.github.zoooohs.realworld.domain.model;
 
+import io.github.zoooohs.realworld.domain.exception.AlreadyAdded;
+import io.github.zoooohs.realworld.domain.exception.FollowingNotFound;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Getter
+@Builder
+@AllArgsConstructor
 public class User {
     private final UserId id;
     private String email;
@@ -12,6 +20,7 @@ public class User {
     private String password;
     private String bio;
     private String image;
+    private List<UserId> followings;
 
     public User(UserId id, String email, String password, String username) {
         this.id = id;
@@ -73,5 +82,30 @@ public class User {
 
     private void setImage(String image) {
         this.image = image;
+    }
+
+    public boolean isFollowing(UserId userId) {
+        if (userId == null) {
+            return false;
+        }
+        if (followings == null) return false;
+        return followings.contains(userId);
+    }
+
+    public void follow(UserId userId) throws AlreadyAdded {
+        if (isFollowing(userId)) {
+            throw new AlreadyAdded();
+        }
+        if (followings == null) {
+            followings = new ArrayList<>();
+        }
+        followings.add(userId);
+    }
+
+    public void unfollow(UserId userId) throws FollowingNotFound {
+        if (!isFollowing(userId)) {
+            throw new FollowingNotFound();
+        }
+        followings.remove(userId);
     }
 }

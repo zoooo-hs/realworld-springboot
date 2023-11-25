@@ -1,7 +1,7 @@
 package io.github.zoooohs.realworld.fake;
 
 import io.github.zoooohs.realworld.application.port.out.persistance.UserIdGenerator;
-import io.github.zoooohs.realworld.domain.UserId;
+import io.github.zoooohs.realworld.domain.model.UserId;
 
 public class FakeUserIdGenerator implements UserIdGenerator {
     private Long currentId;
