@@ -12,6 +12,7 @@ import io.github.zoooohs.realworld.domain.model.User;
 import io.github.zoooohs.realworld.domain.model.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,7 @@ public class ProfileService implements ProfileUseCase {
         return createProfileResponse(foundUser, following);
     }
 
+    @Transactional
     @Override
     public ProfileResponse follow(UserId currentUserId, String username) {
         User followee = userRepository.findByUsername(username)
@@ -52,6 +54,7 @@ public class ProfileService implements ProfileUseCase {
         return createProfileResponse(followee, following);
     }
 
+    @Transactional
     @Override
     public ProfileResponse unfollow(UserId currentUserId, String username) {
         User followee = userRepository.findByUsername(username)

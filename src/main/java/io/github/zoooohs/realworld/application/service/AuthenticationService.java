@@ -16,6 +16,7 @@ import io.github.zoooohs.realworld.domain.model.User;
 import io.github.zoooohs.realworld.domain.model.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class AuthenticationService implements AuthenticationUseCase {
     private final PasswordManager passwordManager;
     private final TokenWriter tokenWriter;
 
+    @Transactional
     @Override
     public UsersResponse registration(RegistrationRequest registrationRequest) {
         String username = registrationRequest.username();
@@ -69,6 +71,7 @@ public class AuthenticationService implements AuthenticationUseCase {
         return createUsersResponse(currentUser);
     }
 
+    @Transactional
     @Override
     public UsersResponse updateCurrentUser(UserId currentUserId, UpdateUserRequest updateUserRequest) {
         User currentUser = userRepository.getByUserId(currentUserId);
