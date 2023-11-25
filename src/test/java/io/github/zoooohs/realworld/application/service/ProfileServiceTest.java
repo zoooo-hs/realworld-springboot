@@ -201,7 +201,8 @@ class ProfileServiceTest {
                 () -> assertEquals("followee", profile.username()),
                 () -> assertEquals("some bio", profile.bio()),
                 () -> assertEquals("http://image-a/a.jpg", profile.image()),
-                () -> assertTrue(profile.following())
+                () -> assertTrue(profile.following()),
+                () -> assertTrue(sut.getProfile(new UserId(1L), "followee").following())
         );
     }
 
@@ -277,7 +278,8 @@ class ProfileServiceTest {
                 () -> assertEquals("followee", profile.username()),
                 () -> assertEquals("some bio", profile.bio()),
                 () -> assertEquals("http://image-a/a.jpg", profile.image()),
-                () -> assertFalse(profile.following())
+                () -> assertFalse(profile.following()),
+                () -> assertFalse(sut.getProfile(new UserId(1L), "followee").following())
         );
     }
 }

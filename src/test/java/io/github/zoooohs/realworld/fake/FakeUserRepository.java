@@ -4,6 +4,7 @@ import io.github.zoooohs.realworld.application.port.out.persistance.UserReposito
 import io.github.zoooohs.realworld.domain.model.User;
 import io.github.zoooohs.realworld.domain.model.UserId;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,6 +14,11 @@ public class FakeUserRepository implements UserRepository {
 
     public User getByUserName(String username) {
         return storage.values().stream().filter(user -> user.getUsername().equals(username)).findFirst().get();
+    }
+
+    @Override
+    public void save(User user) {
+        storage.put(user.getId(), user);
     }
     @Override
     public boolean existsByEmail(String email) {
@@ -25,22 +31,44 @@ public class FakeUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return storage.values().stream().filter(user -> user.getEmail().equals(email)).findFirst();
+    public User getByUserId(UserId userId) {
+        User found = storage.get(userId);
+        return returnCopiedUser(found);
     }
 
     @Override
-    public User getByUserId(UserId userId) {
-        return storage.get(userId);
+    public Optional<User> findByEmail(String email) {
+        return storage
+                .values()
+                .stream()
+                .filter(user -> user.getEmail().equals(email))
+                .map(this::returnCopiedUser)
+                .findFirst();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return storage.values().stream().filter(user -> user.getUsername().equals(username)).findFirst();
+        return storage
+                .values()
+                .stream()
+                .filter(user -> user.getUsername().equals(username))
+                .map(this::returnCopiedUser)
+                .findFirst();
     }
 
-    @Override
-    public void save(User user) {
-        storage.put(user.getId(), user);
+    private User returnCopiedUser(User found) {
+        if (found == null) return null;
+        return User.builder()
+                .id(found.getId())
+                .username(found.getUsername())
+                .bio(found.getBio())
+                .email(found.getEmail())
+                .image(found.getImage())
+                .password(found.getPassword())
+                .followings(found.getFollowings() != null
+                        ? new ArrayList<>(found.getFollowings())
+                        : new ArrayList<>()
+                )
+                .build();
     }
 }

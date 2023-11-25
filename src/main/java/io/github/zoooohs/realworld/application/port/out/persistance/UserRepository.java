@@ -7,14 +7,11 @@ import java.util.Optional;
 
 public interface UserRepository {
     boolean existsByEmail(String email);
-
     boolean existsByUserName(String username);
 
     void save(User user);
 
-    Optional<User> findByEmail(String email);
-
     User getByUserId(UserId currentUserId);
-
+    Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
 }

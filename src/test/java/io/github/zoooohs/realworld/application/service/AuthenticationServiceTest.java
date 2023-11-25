@@ -188,7 +188,8 @@ class AuthenticationServiceTest {
                 () -> Assertions.assertEquals("newname", updatedUser.username()),
                 () -> Assertions.assertEquals("new bio", updatedUser.bio()),
                 () -> Assertions.assertEquals("http://new-image/a.jpg", updatedUser.image()),
-                () -> Assertions.assertNotNull(updatedUser.token())
+                () -> Assertions.assertNotNull(updatedUser.token()),
+                () -> Assertions.assertEquals("newname", sut.getCurrentUser(currentUserId).username())
         );
     }
 }
