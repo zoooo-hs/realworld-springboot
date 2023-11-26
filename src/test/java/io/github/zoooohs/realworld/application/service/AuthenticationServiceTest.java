@@ -25,6 +25,7 @@ class AuthenticationServiceTest {
     private FakePasswordManager passwordManager;
     private FakeTokenWriter tokenManager;
     private AuthenticationUseCase sut;
+    private UserId userId;
 
     @BeforeEach
     void setUp() {
@@ -35,10 +36,10 @@ class AuthenticationServiceTest {
 
         sut = new AuthenticationService(userRepository, userIdGenerator, passwordManager, tokenManager);
 
-        UserId userId = userIdGenerator.generate();
+        userId = userIdGenerator.generate();
         String encryptedPassword = passwordManager.encrypt("123123");
-        User duplicatedUser = new User(userId, "123@456.zz", encryptedPassword, "name");
-        userRepository.save(duplicatedUser);
+        User user = new User(userId, "123@456.zz", encryptedPassword, "name");
+        userRepository.save(user);
     }
 
     @Test
@@ -129,7 +130,7 @@ class AuthenticationServiceTest {
     @Test
     void getCurrentUserReturnCurrentUserIdUsersResponse() {
         // GIVEN
-        UserId currentUserId = new UserId("0");
+        UserId currentUserId = userId;
 
         // WHEN
         UsersResponse currentUser = sut.getCurrentUser(currentUserId);
@@ -145,7 +146,7 @@ class AuthenticationServiceTest {
     @Test
     void updateUserEmailDuplication() {
         // GIVEN
-        UserId currentUserId = new UserId("0");
+        UserId currentUserId = userId;
         UpdateUserRequest emailDuplicatedUpdateRequest =
                 UpdateUserRequest.builder()
                         .email("123@456.zz")
@@ -158,7 +159,7 @@ class AuthenticationServiceTest {
     @Test
     void updateUserUsernameDuplication() {
         // GIVEN
-        UserId currentUserId = new UserId("0");
+        UserId currentUserId = userId;
         UpdateUserRequest emailDuplicatedUpdateRequest =
                 UpdateUserRequest.builder()
                         .username("name")
@@ -170,7 +171,7 @@ class AuthenticationServiceTest {
 
     @Test
     void updateReturnUsersResponseWithUpdatedValueAndUpdatedDB() {
-        UserId currentUserId = new UserId("0");
+        UserId currentUserId = userId;
         UpdateUserRequest emailDuplicatedUpdateRequest =
                 UpdateUserRequest.builder()
                         .email("new@email.com")

@@ -24,18 +24,30 @@ class ProfileServiceTest {
     private FakeUserRepository userRepository = new FakeUserRepository();
     private FakeUserIdGenerator userIdGenerator;
     private FakePasswordManager passwordManager;
+    private UserId userId;
 
     @BeforeEach
     void setUp() {
         sut = new ProfileService(userRepository);
         userIdGenerator = new FakeUserIdGenerator(-1L);
         passwordManager = new FakePasswordManager("fake");
+
+        userId = userIdGenerator.generate();
+        User currentUser = User.builder()
+                .id(userId)
+                .email("123@456.yy")
+                .username("currentUser")
+                .password(passwordManager.encrypt("123123"))
+                .build();
+        userRepository.save(currentUser);
     }
 
     @Test
     void getProfileUsernameNotFound() {
+        // GIVEN
+        UserId currentUserId = userId;
         // GIVEN, WHEN, THEN
-        Assertions.assertThrows(UserNotFound.class, () -> sut.getProfile(new UserId("1"), "username"));
+        Assertions.assertThrows(UserNotFound.class, () -> sut.getProfile(currentUserId, "username"));
     }
 
     @Test
@@ -66,6 +78,7 @@ class ProfileServiceTest {
     @Test
     void getProfileReturnsProfileResponseWithFollowingField() {
         // GIVEN
+        UserId currentUserId = userId;
         User savedUser = User.builder()
                 .id(userIdGenerator.generate())
                 .email("123@456.zz")
@@ -75,16 +88,9 @@ class ProfileServiceTest {
                 .password(passwordManager.encrypt("123123"))
                 .build();
         userRepository.save(savedUser);
-        User currentUser = User.builder()
-                .id(userIdGenerator.generate())
-                .email("123@456.yy")
-                .username("currentUser")
-                .password(passwordManager.encrypt("123123"))
-                .build();
-        userRepository.save(currentUser);
 
         // WHEN
-        ProfileResponse profile = sut.getProfile(new UserId("1"), "name");
+        ProfileResponse profile = sut.getProfile(currentUserId, "name");
 
         // THEN
         Assertions.assertAll(
@@ -98,6 +104,7 @@ class ProfileServiceTest {
     @Test
     void getProfileItSelfReturnProfileWithFollowingFalse() {
         // GIVEN
+        UserId currentUserId = userId;
         User savedUser = User.builder()
                 .id(userIdGenerator.generate())
                 .email("123@456.zz")
@@ -110,7 +117,7 @@ class ProfileServiceTest {
 
 
         // WHEN
-        ProfileResponse profile = sut.getProfile(new UserId("0"), "name");
+        ProfileResponse profile = sut.getProfile(currentUserId, "name");
 
         // THEN
         Assertions.assertAll(
@@ -124,8 +131,9 @@ class ProfileServiceTest {
     @Test
     void getProfileIfUserFollowerContainsCurrentUserFollowingTrue() {
         // GIVEN
+        UserId followeeId = userIdGenerator.generate();
         User followee = User.builder()
-                .id(userIdGenerator.generate())
+                .id(followeeId)
                 .email("123@456.zz")
                 .username("followee")
                 .bio("some bio")
@@ -134,17 +142,18 @@ class ProfileServiceTest {
                 .build();
         userRepository.save(followee);
 
-        User currentUser = User.builder()
-                .id(userIdGenerator.generate())
+        UserId followerId = userIdGenerator.generate();
+        User follower = User.builder()
+                .id(followerId)
                 .email("123@456.yy")
                 .username("currentUser")
                 .password(passwordManager.encrypt("123123"))
-                .followings(List.of(new UserId("0")))
+                .followings(List.of(followeeId))
                 .build();
-        userRepository.save(currentUser);
+        userRepository.save(follower);
 
         // WHEN
-        ProfileResponse profile = sut.getProfile(new UserId("1"), "followee");
+        ProfileResponse profile = sut.getProfile(followerId, "followee");
 
         // THEN
         Assertions.assertAll(
@@ -158,16 +167,10 @@ class ProfileServiceTest {
     @Test
     void followUsernameNotFound() {
         // GIVEN
-        User currentUser = User.builder()
-                .id(userIdGenerator.generate())
-                .email("123@456.yy")
-                .username("currentUser")
-                .password(passwordManager.encrypt("123123"))
-                .build();
-        userRepository.save(currentUser);
+        UserId currentUserId = userId;
 
         // WHEN, THEN
-        Assertions.assertThrows(UserNotFound.class, () -> sut.follow(new UserId("0"), "followee"));
+        Assertions.assertThrows(UserNotFound.class, () -> sut.follow(currentUserId, "followee"));
     }
 
     @Test
@@ -183,18 +186,19 @@ class ProfileServiceTest {
                 .build();
         userRepository.save(followee);
 
-        User currentUser = User.builder()
-                .id(userIdGenerator.generate())
+        UserId followerId = userIdGenerator.generate();
+        User follower = User.builder()
+                .id(followerId)
                 .email("123@456.yy")
                 .username("currentUser")
                 .password(passwordManager.encrypt("123123"))
                 .followings(List.of(followee.getId()))
                 .build();
-        userRepository.save(currentUser);
+        userRepository.save(follower);
 
 
         // WHEN, THEN
-        Assertions.assertThrows(AlreadyFollowed.class, () -> sut.follow(new UserId("1"), "followee"));
+        Assertions.assertThrows(AlreadyFollowed.class, () -> sut.follow(followerId, "followee"));
     }
 
     @Test
@@ -210,16 +214,10 @@ class ProfileServiceTest {
                 .build();
         userRepository.save(followee);
 
-        User currentUser = User.builder()
-                .id(userIdGenerator.generate())
-                .email("123@456.yy")
-                .username("currentUser")
-                .password(passwordManager.encrypt("123123"))
-                .build();
-        userRepository.save(currentUser);
+        UserId followerId = userId;
 
         // WHEN
-        ProfileResponse profile = sut.follow(new UserId("1"), "followee");
+        ProfileResponse profile = sut.follow(userId, "followee");
 
         // THEN
         Assertions.assertAll(
@@ -227,23 +225,17 @@ class ProfileServiceTest {
                 () -> assertEquals("some bio", profile.bio()),
                 () -> assertEquals("http://image-a/a.jpg", profile.image()),
                 () -> assertTrue(profile.following()),
-                () -> assertTrue(sut.getProfile(new UserId("1"), "followee").following())
+                () -> assertTrue(sut.getProfile(followerId, "followee").following())
         );
     }
 
     @Test
     void unfollowUsernameUserNotFound() {
         // GIVEN
-        User currentUser = User.builder()
-                .id(userIdGenerator.generate())
-                .email("123@456.yy")
-                .username("currentUser")
-                .password(passwordManager.encrypt("123123"))
-                .build();
-        userRepository.save(currentUser);
+        UserId followerId = userId;
 
         // WHEN, THEN
-        Assertions.assertThrows(UserNotFound.class, () -> sut.unfollow(new UserId("0"), "followee"));
+        Assertions.assertThrows(UserNotFound.class, () -> sut.unfollow(followerId, "followee"));
     }
 
     @Test
@@ -259,16 +251,10 @@ class ProfileServiceTest {
                 .build();
         userRepository.save(followee);
 
-        User currentUser = User.builder()
-                .id(userIdGenerator.generate())
-                .email("123@456.yy")
-                .username("currentUser")
-                .password(passwordManager.encrypt("123123"))
-                .build();
-        userRepository.save(currentUser);
+        UserId followerId = userId;
 
         // WHEN, THEN
-        Assertions.assertThrows(NotFollowing.class, () -> sut.unfollow(new UserId("1"), "followee"));
+        Assertions.assertThrows(NotFollowing.class, () -> sut.unfollow(followerId, "followee"));
     }
 
     @Test
@@ -284,19 +270,20 @@ class ProfileServiceTest {
                 .build();
         userRepository.save(followee);
 
+        UserId followerId = userIdGenerator.generate();
         List<UserId> following = new ArrayList<>();
         following.add(followee.getId());
-        User currentUser = User.builder()
-                .id(userIdGenerator.generate())
+        User follower = User.builder()
+                .id(followerId)
                 .email("123@456.yy")
                 .username("currentUser")
                 .password(passwordManager.encrypt("123123"))
                 .followings(following)
                 .build();
-        userRepository.save(currentUser);
+        userRepository.save(follower);
 
         // WHEN
-        ProfileResponse profile = sut.unfollow(new UserId("1"), "followee");
+        ProfileResponse profile = sut.unfollow(followerId, "followee");
 
         // THEN
         Assertions.assertAll(
@@ -304,7 +291,7 @@ class ProfileServiceTest {
                 () -> assertEquals("some bio", profile.bio()),
                 () -> assertEquals("http://image-a/a.jpg", profile.image()),
                 () -> assertFalse(profile.following()),
-                () -> assertFalse(sut.getProfile(new UserId("1"), "followee").following())
+                () -> assertFalse(sut.getProfile(followerId, "followee").following())
         );
     }
 }

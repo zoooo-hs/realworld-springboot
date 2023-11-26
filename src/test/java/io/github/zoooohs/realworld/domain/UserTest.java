@@ -68,16 +68,18 @@ class UserTest {
 
     @Test
     void isFollowingInputContainsInFollowerReturnTrue() {
+        UserId followerId = newId();
+        UserId followeeId = newId();
         User user = User.builder()
-                .id(newId())
+                .id(followerId)
                 .email("123@456.zz")
                 .username("followee")
                 .password("123123")
-                .followings(List.of(newId()))
+                .followings(List.of(followeeId))
                 .build();
 
         // WHEN
-        boolean following = user.isFollowing(new UserId("1"));
+        boolean following = user.isFollowing(followeeId);
 
         // THEN
         Assertions.assertTrue(following);
@@ -93,8 +95,10 @@ class UserTest {
                 .followings(List.of(newId()))
                 .build();
 
+        UserId notFollowingUserId = newId();
+
         // WHEN
-        boolean following = user.isFollowing(new UserId("100"));
+        boolean following = user.isFollowing(notFollowingUserId);
 
         // THEN
         Assertions.assertFalse(following);
@@ -110,8 +114,10 @@ class UserTest {
                 .followings(null)
                 .build();
 
+        UserId anyUserId = newId();
+
         // WHEN
-        boolean following = user.isFollowing(new UserId("1"));
+        boolean following = user.isFollowing(anyUserId);
 
         // THEN
         Assertions.assertFalse(following);
@@ -127,8 +133,10 @@ class UserTest {
                 .followings(Collections.emptyList())
                 .build();
 
+        UserId anyUserId = newId();
+
         // WHEN
-        boolean following = user.isFollowing(new UserId("1"));
+        boolean following = user.isFollowing(anyUserId);
 
         // THEN
         Assertions.assertFalse(following);
@@ -137,16 +145,17 @@ class UserTest {
     @Test
     void followAlreadyAddedThrows() {
         // GIVEN
+        UserId alreadyFollowedId = newId();
         User user = User.builder()
                 .id(newId())
                 .email("123@456.zz")
                 .username("followee")
                 .password("123123")
-                .followings(List.of(newId()))
+                .followings(List.of(alreadyFollowedId))
                 .build();
 
         // WHEN, THEN
-        Assertions.assertThrows(AlreadyAdded.class, () -> user.follow(new UserId("1")));
+        Assertions.assertThrows(AlreadyAdded.class, () -> user.follow(alreadyFollowedId));
     }
 
     @Test
@@ -160,10 +169,11 @@ class UserTest {
                 .followings(new ArrayList<>())
                 .build();
 
-        user.follow(new UserId("1"));
+        UserId followeeId = newId();
+        user.follow(followeeId);
 
         // WHEN,
-        boolean following = user.isFollowing(new UserId("1"));
+        boolean following = user.isFollowing(followeeId);
 
         // THEN
         Assertions.assertTrue(following);
@@ -180,10 +190,11 @@ class UserTest {
                 .followings(null)
                 .build();
 
-        user.follow(new UserId("1"));
+        UserId followeeId = newId();
+        user.follow(followeeId);
 
         // WHEN,
-        boolean following = user.isFollowing(new UserId("1"));
+        boolean following = user.isFollowing(followeeId);
 
         // THEN
         Assertions.assertTrue(following);
@@ -199,15 +210,18 @@ class UserTest {
                 .password("123123")
                 .build();
 
+        UserId notFollowingUserId = newId();
+
         // WHEN, THEN
-        Assertions.assertThrows(FollowingNotFound.class, () -> user.unfollow(new UserId("1")));
+        Assertions.assertThrows(FollowingNotFound.class, () -> user.unfollow(notFollowingUserId));
     }
 
     @Test
     void unfollowMakeIsFollowingFalse() throws Exception {
         // GIVEN
+        UserId followeeId = newId();
         List<UserId> followings = new ArrayList<>();
-        followings.add(new UserId("1"));
+        followings.add(followeeId);
         User user = User.builder()
                 .id(newId())
                 .email("123@456.zz")
@@ -217,9 +231,9 @@ class UserTest {
                 .build();
 
         // WHEN
-        user.unfollow(new UserId("1"));
+        user.unfollow(followeeId);
 
         // THEN
-        Assertions.assertFalse(user.isFollowing(new UserId("1")));
+        Assertions.assertFalse(user.isFollowing(followeeId));
     }
 }
