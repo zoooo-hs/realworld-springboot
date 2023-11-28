@@ -1,4 +1,4 @@
-package io.github.zoooohs.realworld.domain.model;
+package io.github.zoooohs.realworld.domain.model.user;
 
 import io.github.zoooohs.realworld.domain.exception.AlreadyAdded;
 import io.github.zoooohs.realworld.domain.exception.FollowingNotFound;

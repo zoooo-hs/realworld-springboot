@@ -1,8 +1,8 @@
 package io.github.zoooohs.realworld.fake;
 
 import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
-import io.github.zoooohs.realworld.domain.model.User;
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.domain.model.user.User;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +54,11 @@ public class FakeUserRepository implements UserRepository {
                 .filter(user -> user.getUsername().equals(username))
                 .map(this::returnCopiedUser)
                 .findFirst();
+    }
+
+    @Override
+    public Optional<User> findByUserId(UserId userId) {
+        return Optional.ofNullable(storage.get(userId));
     }
 
     private User returnCopiedUser(User found) {

@@ -1,6 +1,6 @@
 package io.github.zoooohs.realworld.infrastructure.model.security;
 
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 import lombok.Getter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

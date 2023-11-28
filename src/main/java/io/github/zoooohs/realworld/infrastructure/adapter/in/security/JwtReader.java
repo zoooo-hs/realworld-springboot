@@ -1,8 +1,8 @@
 package io.github.zoooohs.realworld.infrastructure.adapter.in.security;
 
-import io.github.zoooohs.realworld.application.model.TokenPayload;
+import io.github.zoooohs.realworld.application.model.user.TokenPayload;
 import io.github.zoooohs.realworld.application.port.in.security.TokenReader;
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 import io.github.zoooohs.realworld.infrastructure.configuration.security.JwtProperties;
 import io.github.zoooohs.realworld.infrastructure.exception.TokenExpired;
 import io.github.zoooohs.realworld.infrastructure.exception.TokenParseError;

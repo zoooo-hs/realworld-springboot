@@ -1,10 +1,10 @@
 package io.github.zoooohs.realworld.fake;
 
-import io.github.zoooohs.realworld.application.model.TokenPayload;
+import io.github.zoooohs.realworld.application.model.user.TokenPayload;
 import io.github.zoooohs.realworld.application.port.in.security.TokenReader;
 import io.github.zoooohs.realworld.application.port.out.security.TokenWriter;
-import io.github.zoooohs.realworld.domain.model.User;
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.domain.model.user.User;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 
 public class FakeTokenWriter implements TokenWriter, TokenReader {
     @Override

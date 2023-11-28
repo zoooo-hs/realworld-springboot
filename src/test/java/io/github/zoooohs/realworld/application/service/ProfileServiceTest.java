@@ -3,10 +3,9 @@ package io.github.zoooohs.realworld.application.service;
 import io.github.zoooohs.realworld.application.exception.AlreadyFollowed;
 import io.github.zoooohs.realworld.application.exception.NotFollowing;
 import io.github.zoooohs.realworld.application.exception.UserNotFound;
-import io.github.zoooohs.realworld.application.model.ProfileResponse;
-import io.github.zoooohs.realworld.application.port.in.usecase.ProfileUseCase;
-import io.github.zoooohs.realworld.domain.model.User;
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.application.model.user.ProfileResponse;
+import io.github.zoooohs.realworld.domain.model.user.User;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 import io.github.zoooohs.realworld.fake.FakePasswordManager;
 import io.github.zoooohs.realworld.fake.FakeUserIdGenerator;
 import io.github.zoooohs.realworld.fake.FakeUserRepository;
@@ -20,7 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProfileServiceTest {
-    private ProfileUseCase sut;
+    private ProfileService sut;
     private FakeUserRepository userRepository = new FakeUserRepository();
     private FakeUserIdGenerator userIdGenerator;
     private FakePasswordManager passwordManager;

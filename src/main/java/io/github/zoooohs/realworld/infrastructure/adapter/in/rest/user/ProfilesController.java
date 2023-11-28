@@ -1,8 +1,9 @@
 package io.github.zoooohs.realworld.infrastructure.adapter.in.rest.user;
 
-import io.github.zoooohs.realworld.application.model.ProfileResponse;
-import io.github.zoooohs.realworld.application.port.in.usecase.ProfileUseCase;
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.application.model.user.ProfileResponse;
+import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileFollowUseCase;
+import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileUseCase;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 import io.github.zoooohs.realworld.infrastructure.model.rest.SingleProfileResponse;
 import io.github.zoooohs.realworld.infrastructure.model.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/profiles")
 public class ProfilesController {
     private final ProfileUseCase profileUseCase;
+    private final ProfileFollowUseCase profileFollowUseCase;
+
     @GetMapping("/{username}")
     public SingleProfileResponse getProfile(
             @PathVariable("username") String username,
@@ -30,7 +33,7 @@ public class ProfilesController {
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
         UserId userId = UserPrincipal.userId(userPrincipal);
-        ProfileResponse profile = profileUseCase.follow(userId, username);
+        ProfileResponse profile = profileFollowUseCase.follow(userId, username);
         return new SingleProfileResponse(profile);
     }
 
@@ -40,7 +43,7 @@ public class ProfilesController {
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
         UserId userId = UserPrincipal.userId(userPrincipal);
-        ProfileResponse profile = profileUseCase.unfollow(userId, username);
+        ProfileResponse profile = profileFollowUseCase.unfollow(userId, username);
         return new SingleProfileResponse(profile);
     }
 

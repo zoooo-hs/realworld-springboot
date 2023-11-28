@@ -1,6 +1,6 @@
 package io.github.zoooohs.realworld.infrastructure.model.persistance.user;
 
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 import jakarta.persistence.*;
 import lombok.*;
 

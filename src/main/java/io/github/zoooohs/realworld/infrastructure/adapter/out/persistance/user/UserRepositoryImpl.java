@@ -1,8 +1,8 @@
 package io.github.zoooohs.realworld.infrastructure.adapter.out.persistance.user;
 
 import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
-import io.github.zoooohs.realworld.domain.model.User;
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.domain.model.user.User;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 import io.github.zoooohs.realworld.infrastructure.adapter.out.persistance.user.jpa.UserJpaRepository;
 import io.github.zoooohs.realworld.infrastructure.model.persistance.user.UserEntity;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +43,10 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> findByUsername(String username) {
         return userJpaRepository.findByUsername(username).map(UserEntity::toDomainEntity);
+    }
+
+    @Override
+    public Optional<User> findByUserId(UserId userId) {
+        return userJpaRepository.findById(userId.id()).map(UserEntity::toDomainEntity);
     }
 }

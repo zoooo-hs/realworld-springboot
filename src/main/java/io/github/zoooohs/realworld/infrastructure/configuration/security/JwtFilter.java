@@ -1,6 +1,6 @@
 package io.github.zoooohs.realworld.infrastructure.configuration.security;
 
-import io.github.zoooohs.realworld.application.model.TokenPayload;
+import io.github.zoooohs.realworld.application.model.user.TokenPayload;
 import io.github.zoooohs.realworld.application.port.in.security.TokenReader;
 import io.github.zoooohs.realworld.infrastructure.model.security.UserPrincipal;
 import jakarta.servlet.*;

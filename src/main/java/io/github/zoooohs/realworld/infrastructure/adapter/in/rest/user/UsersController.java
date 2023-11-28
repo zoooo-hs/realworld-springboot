@@ -1,9 +1,9 @@
 package io.github.zoooohs.realworld.infrastructure.adapter.in.rest.user;
 
-import io.github.zoooohs.realworld.application.model.AuthenticationRequest;
-import io.github.zoooohs.realworld.application.model.RegistrationRequest;
-import io.github.zoooohs.realworld.application.model.UsersResponse;
-import io.github.zoooohs.realworld.application.port.in.usecase.AuthenticationUseCase;
+import io.github.zoooohs.realworld.application.model.user.AuthenticationRequest;
+import io.github.zoooohs.realworld.application.model.user.RegistrationRequest;
+import io.github.zoooohs.realworld.application.model.user.UsersResponse;
+import io.github.zoooohs.realworld.application.port.in.usecase.user.AuthenticationUseCase;
 import io.github.zoooohs.realworld.infrastructure.model.rest.AuthenticationHttpRequest;
 import io.github.zoooohs.realworld.infrastructure.model.rest.RegistrationHttpRequest;
 import io.github.zoooohs.realworld.infrastructure.model.rest.SingleUserResponse;

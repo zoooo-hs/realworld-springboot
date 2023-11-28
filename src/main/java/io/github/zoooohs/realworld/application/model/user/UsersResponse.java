@@ -1,4 +1,4 @@
-package io.github.zoooohs.realworld.application.model;
+package io.github.zoooohs.realworld.application.model.user;
 
 import lombok.Builder;
 

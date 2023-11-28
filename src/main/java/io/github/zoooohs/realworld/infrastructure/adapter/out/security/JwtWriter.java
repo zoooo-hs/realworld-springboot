@@ -1,7 +1,7 @@
 package io.github.zoooohs.realworld.infrastructure.adapter.out.security;
 
 import io.github.zoooohs.realworld.application.port.out.security.TokenWriter;
-import io.github.zoooohs.realworld.domain.model.User;
+import io.github.zoooohs.realworld.domain.model.user.User;
 import io.github.zoooohs.realworld.infrastructure.configuration.security.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

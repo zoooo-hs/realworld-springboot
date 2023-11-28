@@ -3,20 +3,21 @@ package io.github.zoooohs.realworld.application.service;
 import io.github.zoooohs.realworld.application.exception.AlreadyFollowed;
 import io.github.zoooohs.realworld.application.exception.NotFollowing;
 import io.github.zoooohs.realworld.application.exception.UserNotFound;
-import io.github.zoooohs.realworld.application.model.ProfileResponse;
-import io.github.zoooohs.realworld.application.port.in.usecase.ProfileUseCase;
+import io.github.zoooohs.realworld.application.model.user.ProfileResponse;
+import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileFollowUseCase;
+import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileUseCase;
 import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
 import io.github.zoooohs.realworld.domain.exception.AlreadyAdded;
 import io.github.zoooohs.realworld.domain.exception.FollowingNotFound;
-import io.github.zoooohs.realworld.domain.model.User;
-import io.github.zoooohs.realworld.domain.model.UserId;
+import io.github.zoooohs.realworld.domain.model.user.User;
+import io.github.zoooohs.realworld.domain.model.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ProfileService implements ProfileUseCase {
+public class ProfileService implements ProfileUseCase, ProfileFollowUseCase {
     private final UserRepository userRepository;
 
     @Override
@@ -24,6 +25,18 @@ public class ProfileService implements ProfileUseCase {
         User foundUser = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFound::new);
 
+        return getProfileInternal(currentUserId, foundUser);
+    }
+
+    @Override
+    public ProfileResponse getProfile(UserId currentUserId, UserId userId) {
+        User foundUser = userRepository.findByUserId(userId)
+                .orElseThrow(UserNotFound::new);
+
+        return getProfileInternal(currentUserId, foundUser);
+    }
+
+    private ProfileResponse getProfileInternal(UserId currentUserId, User foundUser) {
         boolean following;
         if (currentUserId == null) {
             following = false;
