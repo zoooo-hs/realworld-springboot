@@ -7,6 +7,7 @@ import io.github.zoooohs.realworld.application.model.user.ProfileResponse;
 import io.github.zoooohs.realworld.domain.user.entity.User;
 import io.github.zoooohs.realworld.domain.user.entity.UserId;
 import io.github.zoooohs.realworld.fake.FakePasswordManager;
+import io.github.zoooohs.realworld.fake.FakeProfileQueryHandler;
 import io.github.zoooohs.realworld.fake.FakeUserIdGenerator;
 import io.github.zoooohs.realworld.fake.FakeUserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -20,14 +21,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ProfileServiceTest {
     private ProfileService sut;
-    private FakeUserRepository userRepository = new FakeUserRepository();
+    private FakeUserRepository userRepository;
     private FakeUserIdGenerator userIdGenerator;
     private FakePasswordManager passwordManager;
+    private FakeProfileQueryHandler profileQueryHandler;
     private UserId userId;
 
     @BeforeEach
     void setUp() {
-        sut = new ProfileService(userRepository);
+        userRepository = new FakeUserRepository();
+        profileQueryHandler = new FakeProfileQueryHandler(userRepository);
+        sut = new ProfileService(userRepository, profileQueryHandler);
         userIdGenerator = new FakeUserIdGenerator(-1L);
         passwordManager = new FakePasswordManager("fake");
 

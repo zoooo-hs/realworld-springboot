@@ -6,6 +6,7 @@ import io.github.zoooohs.realworld.application.exception.UserNotFound;
 import io.github.zoooohs.realworld.application.model.user.ProfileResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileFollowUseCase;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileUseCase;
+import io.github.zoooohs.realworld.application.port.out.persistance.query.ProfileQueryHandler;
 import io.github.zoooohs.realworld.domain.user.entity.User;
 import io.github.zoooohs.realworld.domain.user.entity.UserId;
 import io.github.zoooohs.realworld.domain.user.exception.AlreadyAdded;
@@ -19,13 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProfileService implements ProfileUseCase, ProfileFollowUseCase {
     private final UserRepository userRepository;
+    private final ProfileQueryHandler profileQueryHandler;
 
     @Override
     public ProfileResponse getProfile(UserId currentUserId, String username) {
-        User foundUser = userRepository.findByUsername(username)
+        return profileQueryHandler.findProfile(currentUserId, username)
                 .orElseThrow(UserNotFound::new);
-
-        return getProfileInternal(currentUserId, foundUser);
     }
 
     @Override
