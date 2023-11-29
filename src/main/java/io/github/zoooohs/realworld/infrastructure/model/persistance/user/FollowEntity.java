@@ -29,15 +29,15 @@ public class FollowEntity {
     @JoinColumn(name = "followee_id")
     private UserEntity followee;
 
-    public static Set<FollowEntity> userFollowings(UserId followerId, List<UserId> followings) {
-        if (followings == null) {
+    public static Set<FollowEntity> userFollowers(UserId followeeId, List<UserId> followers) {
+        if (followers == null) {
             return Collections.emptySet();
         }
-        UserEntity follower = UserEntity.of(followerId.id());
-        return followings.stream()
+        UserEntity followee = UserEntity.of(followeeId.id());
+        return followers.stream()
                 .map(UserId::id)
                 .map(UserEntity::of)
-                .map(following -> FollowEntity.builder().follower(follower).followee(following).build())
+                .map(follower -> FollowEntity.builder().followee(followee).follower(follower).build())
                 .collect(Collectors.toSet());
     }
 }

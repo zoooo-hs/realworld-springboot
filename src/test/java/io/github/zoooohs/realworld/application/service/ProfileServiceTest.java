@@ -131,6 +131,7 @@ class ProfileServiceTest {
     void getProfileIfUserFollowerContainsCurrentUserFollowingTrue() {
         // GIVEN
         UserId followeeId = userIdGenerator.generate();
+        UserId followerId = userIdGenerator.generate();
         User followee = User.builder()
                 .id(followeeId)
                 .email("123@456.zz")
@@ -138,16 +139,15 @@ class ProfileServiceTest {
                 .bio("some bio")
                 .image("http://image-a/a.jpg")
                 .password(passwordManager.encrypt("123123"))
+                .followers(List.of(followerId))
                 .build();
         userRepository.save(followee);
 
-        UserId followerId = userIdGenerator.generate();
         User follower = User.builder()
                 .id(followerId)
                 .email("123@456.yy")
                 .username("currentUser")
                 .password(passwordManager.encrypt("123123"))
-                .followings(List.of(followeeId))
                 .build();
         userRepository.save(follower);
 
@@ -175,6 +175,7 @@ class ProfileServiceTest {
     @Test
     void followAlreadyFollowedThrowsAlreadyFollowed() {
         // GIVEN
+        UserId followerId = userIdGenerator.generate();
         User followee = User.builder()
                 .id(userIdGenerator.generate())
                 .email("123@456.zz")
@@ -182,16 +183,15 @@ class ProfileServiceTest {
                 .bio("some bio")
                 .image("http://image-a/a.jpg")
                 .password(passwordManager.encrypt("123123"))
+                .followers(List.of(followerId))
                 .build();
         userRepository.save(followee);
 
-        UserId followerId = userIdGenerator.generate();
         User follower = User.builder()
                 .id(followerId)
                 .email("123@456.yy")
                 .username("currentUser")
                 .password(passwordManager.encrypt("123123"))
-                .followings(List.of(followee.getId()))
                 .build();
         userRepository.save(follower);
 
@@ -259,6 +259,9 @@ class ProfileServiceTest {
     @Test
     void unfollowReturnProfilesWithFollowingFalse() {
         // GIVEN
+        UserId followerId = userIdGenerator.generate();
+        List<UserId> followers = new ArrayList<>();
+        followers.add(followerId);
         User followee = User.builder()
                 .id(userIdGenerator.generate())
                 .email("123@456.zz")
@@ -266,18 +269,15 @@ class ProfileServiceTest {
                 .bio("some bio")
                 .image("http://image-a/a.jpg")
                 .password(passwordManager.encrypt("123123"))
+                .followers(followers)
                 .build();
         userRepository.save(followee);
 
-        UserId followerId = userIdGenerator.generate();
-        List<UserId> following = new ArrayList<>();
-        following.add(followee.getId());
         User follower = User.builder()
                 .id(followerId)
                 .email("123@456.yy")
                 .username("currentUser")
                 .password(passwordManager.encrypt("123123"))
-                .followings(following)
                 .build();
         userRepository.save(follower);
 

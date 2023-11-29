@@ -23,12 +23,15 @@ public class User {
     private String bio;
     private String image;
     private List<UserId> followings;
+    private List<UserId> followers;
 
     private User(UserId id, String username, String email, String password, PasswordManager passwordManager) {
         this.id = id;
         setUsername(username);
         setEmail(email);
         changePassword(password, passwordManager);
+        followers = new ArrayList<>();
+        followings = new ArrayList<>();
     }
 
     public static User newUser(String username, String email, String password, PasswordManager passwordManager, UserIdGenerator userIdGenerator) {
@@ -95,21 +98,31 @@ public class User {
         return followings.contains(userId);
     }
 
+    public boolean isFollowedBy(UserId currentUserId) {
+        if (currentUserId == null) {
+            return false;
+        }
+        if (followers == null) {
+            return false;
+        }
+        return followers.contains(currentUserId);
+    }
+
     public void follow(UserId userId) throws AlreadyAdded {
-        if (isFollowing(userId)) {
+        if (isFollowedBy(userId)) {
             throw new AlreadyAdded();
         }
-        if (followings == null) {
-            followings = new ArrayList<>();
+        if (followers == null) {
+            followers = new ArrayList<>();
         }
-        followings.add(userId);
+        followers.add(userId);
     }
 
     public void unfollow(UserId userId) throws FollowingNotFound {
-        if (!isFollowing(userId)) {
+        if (!isFollowedBy(userId)) {
             throw new FollowingNotFound();
         }
-        followings.remove(userId);
+        followers.remove(userId);
     }
 
     public boolean isAuthenticatedByPassword(String rawPassword, PasswordManager passwordManager) {

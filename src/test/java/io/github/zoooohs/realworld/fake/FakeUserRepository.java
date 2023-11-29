@@ -70,6 +70,10 @@ public class FakeUserRepository implements UserRepository {
                 .email(found.getEmail())
                 .image(found.getImage())
                 .password(found.getPassword())
+                .followers(found.getFollowers() != null
+                        ? new ArrayList<>(found.getFollowers())
+                        : new ArrayList<>()
+                )
                 .followings(found.getFollowings() != null
                         ? new ArrayList<>(found.getFollowings())
                         : new ArrayList<>()

@@ -37,14 +37,7 @@ public class ProfileService implements ProfileUseCase, ProfileFollowUseCase {
     }
 
     private ProfileResponse getProfileInternal(UserId currentUserId, User foundUser) {
-        boolean following;
-        if (currentUserId == null) {
-            following = false;
-        } else {
-            User currentUser = userRepository.getByUserId(currentUserId);
-            following = currentUser.isFollowing(foundUser.getId());
-        }
-
+        boolean following = foundUser.isFollowedBy(currentUserId);
         return createProfileResponse(foundUser, following);
     }
 
@@ -53,18 +46,15 @@ public class ProfileService implements ProfileUseCase, ProfileFollowUseCase {
     public ProfileResponse follow(UserId currentUserId, String username) {
         User followee = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFound::new);
-        User currentUser = userRepository.getByUserId(currentUserId);
 
         try {
-            currentUser.follow(followee.getId());
+            followee.follow(currentUserId);
         } catch (AlreadyAdded e) {
             throw new AlreadyFollowed();
         }
 
-        userRepository.save(currentUser);
-
-        boolean following = currentUser.isFollowing(followee.getId());
-        return createProfileResponse(followee, following);
+        userRepository.save(followee);
+        return createProfileResponse(followee, true);
     }
 
     @Transactional
@@ -72,18 +62,15 @@ public class ProfileService implements ProfileUseCase, ProfileFollowUseCase {
     public ProfileResponse unfollow(UserId currentUserId, String username) {
         User followee = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFound::new);
-        User currentUser = userRepository.getByUserId(currentUserId);
 
         try {
-            currentUser.unfollow(followee.getId());
+            followee.unfollow(currentUserId);
         } catch (FollowingNotFound e) {
             throw new NotFollowing();
         }
 
-        userRepository.save(currentUser);
-
-        boolean following = currentUser.isFollowing(followee.getId());
-        return createProfileResponse(followee, following);
+        userRepository.save(followee);
+        return createProfileResponse(followee, false);
     }
 
     private ProfileResponse createProfileResponse(User foundUser, boolean following) {

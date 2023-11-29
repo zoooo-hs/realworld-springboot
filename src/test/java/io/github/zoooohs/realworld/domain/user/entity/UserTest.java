@@ -128,6 +128,53 @@ class UserTest {
     }
 
     @Test
+    void isFollowedBy_if_followers_is_null_return_false() {
+        User user = User.builder()
+                .id(newId())
+                .followers(null)
+                .build();
+        UserId userId = newId();
+
+        boolean followedBy = user.isFollowedBy(userId);
+
+        Assertions.assertFalse(followedBy);
+    }
+
+    @Test
+    void isFollowedBy_if_userId_is_null_return_false() {
+        User user = User.newUser("hyunsu", "abc@def.xyz", "hyunsu", passwordManager, userIdGenerator);
+
+        boolean followedBy = user.isFollowedBy(null);
+
+        Assertions.assertFalse(followedBy);
+    }
+
+    @Test
+    void isFollowedBy_if_userId_is_not_in_followers_return_false() {
+        UserId followerId = newId();
+        User user = User.newUser("hyunsu", "abc@def.xyz", "hyunsu", passwordManager, userIdGenerator);
+
+        boolean followedBy = user.isFollowedBy(followerId);
+
+        Assertions.assertFalse(followedBy);
+    }
+    @Test
+    void isFollowedBy_if_userId_is_in_followers_return_true() {
+        UserId followerId = newId();
+        User user = User.builder()
+                .id(newId())
+                .email("123@456.zz")
+                .username("followee")
+                .password("123123")
+                .followers(List.of(followerId))
+                .build();
+
+        boolean followedBy = user.isFollowedBy(followerId);
+
+        Assertions.assertTrue(followedBy);
+    }
+
+    @Test
     void followAlreadyAddedThrows() {
         // GIVEN
         UserId alreadyFollowedId = newId();
@@ -136,7 +183,7 @@ class UserTest {
                 .email("123@456.zz")
                 .username("followee")
                 .password("123123")
-                .followings(List.of(alreadyFollowedId))
+                .followers(List.of(alreadyFollowedId))
                 .build();
 
         // WHEN, THEN
@@ -151,35 +198,35 @@ class UserTest {
                 .email("123@456.zz")
                 .username("followee")
                 .password("123123")
-                .followings(new ArrayList<>())
+                .followers(new ArrayList<>())
                 .build();
 
-        UserId followeeId = newId();
-        user.follow(followeeId);
+        UserId follower = newId();
+        user.follow(follower);
 
         // WHEN,
-        boolean following = user.isFollowing(followeeId);
+        boolean following = user.isFollowedBy(follower);
 
         // THEN
         Assertions.assertTrue(following);
     }
 
     @Test
-    void followIfFollowingNullCreateEmptyListAndAdd() throws Exception {
+    void followIfFollowersNullCreateEmptyListAndAdd() throws Exception {
         // GIVEN
         User user = User.builder()
                 .id(newId())
                 .email("123@456.zz")
                 .username("followee")
                 .password("123123")
-                .followings(null)
+                .followers(null)
                 .build();
 
         UserId followeeId = newId();
         user.follow(followeeId);
 
         // WHEN,
-        boolean following = user.isFollowing(followeeId);
+        boolean following = user.isFollowedBy(followeeId);
 
         // THEN
         Assertions.assertTrue(following);
@@ -202,24 +249,24 @@ class UserTest {
     }
 
     @Test
-    void unfollowMakeIsFollowingFalse() throws Exception {
+    void unfollowMakeIsFollowedByFalse() throws Exception {
         // GIVEN
-        UserId followeeId = newId();
-        List<UserId> followings = new ArrayList<>();
-        followings.add(followeeId);
+        UserId followerId = newId();
+        List<UserId> followers = new ArrayList<>();
+        followers.add(followerId);
         User user = User.builder()
                 .id(newId())
                 .email("123@456.zz")
                 .username("followee")
                 .password("123123")
-                .followings(followings)
+                .followers(followers)
                 .build();
 
         // WHEN
-        user.unfollow(followeeId);
+        user.unfollow(followerId);
 
         // THEN
-        Assertions.assertFalse(user.isFollowing(followeeId));
+        Assertions.assertFalse(user.isFollowedBy(followerId));
     }
 
     @Test

@@ -24,8 +24,8 @@ public class UserEntity {
     private String bio;
     private String image;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<FollowEntity> followings;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "followee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<FollowEntity> followers;
 
     public static UserEntity of(String id) {
         return UserEntity.builder().id(id).build();
@@ -38,7 +38,7 @@ public class UserEntity {
                 .password(user.getPassword())
                 .bio(user.getBio())
                 .image(user.getImage())
-                .followings(FollowEntity.userFollowings(user.getId(), user.getFollowings()))
+                .followers(FollowEntity.userFollowers(user.getId(), user.getFollowings()))
                 .build();
     }
 
@@ -50,9 +50,9 @@ public class UserEntity {
                 .password(password)
                 .bio(bio)
                 .image(image)
-                .followings(followings == null ? null :
-                        followings.stream()
-                                .map(FollowEntity::getFollowee)
+                .followers(followers == null ? null :
+                        followers.stream()
+                                .map(FollowEntity::getFollower)
                                 .map(UserEntity::getId)
                                 .map(UserId::new)
                                 .collect(Collectors.toList())
