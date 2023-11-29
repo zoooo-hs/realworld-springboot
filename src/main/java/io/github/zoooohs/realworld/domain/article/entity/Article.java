@@ -1,5 +1,6 @@
 package io.github.zoooohs.realworld.domain.article.entity;
 
+import io.github.zoooohs.realworld.domain.article.service.ArticleIdGenerator;
 import io.github.zoooohs.realworld.domain.user.entity.UserId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -25,11 +26,8 @@ public class Article {
     private Instant createdAt;
     private Instant updatedAt;
 
-    public static Article newArticle(ArticleId id, String title, String description, String body, List<String> tags, UserId authorId) {
-        assert id != null;
-        assert title != null;
-        assert description != null;
-        assert body != null;
+    public static Article newArticle(String title, String description, String body, List<String> tags, UserId authorId, ArticleIdGenerator articleIdGenerator) {
+        ArticleId id = articleIdGenerator.generate();
         Instant now = Instant.now();
         return Article.builder()
                 .id(id)

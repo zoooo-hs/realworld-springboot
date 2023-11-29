@@ -34,11 +34,11 @@ class ArticleTest {
         userIdGenerator = new FakeUserIdGenerator(-1L);
         passwordManager = new FakePasswordManager("fake");
         UserRepository userRepository = new FakeUserRepository();
-        authorId = userIdGenerator.generate();
         User author = User.newUser("author", "abc@def.zz", "password", passwordManager, userIdGenerator);
+        authorId = author.getId();
         userRepository.save(author);
-        articleId = articleIdGenerator.generate();
-        article = Article.newArticle(articleId, "Hello World This is Title", "description", "this is body of the article", null, authorId);
+        article = Article.newArticle("Hello World This is Title", "description", "this is body of the article", new ArrayList<>(), authorId, articleIdGenerator);
+        articleId = article.getId();
     }
 
     @Test
@@ -53,8 +53,7 @@ class ArticleTest {
     @Test
     void get_tags_when_tags_is_null_return_empty_list() {
         // GIVEN
-        articleId = articleIdGenerator.generate();
-        article = Article.newArticle(articleId, "Hello World This is Title", "description", "this is body of the article", null, authorId);
+        article = Article.newArticle("Hello World This is Title", "description", "this is body of the article", null, authorId, articleIdGenerator);
 
         // WHEN
         List<String> tags = article.getTags();
@@ -68,13 +67,7 @@ class ArticleTest {
 
     @Test
     void isFavoritedBy_if_favorites_null_return_false() {
-        article = Article.builder()
-                .id(articleIdGenerator.generate())
-                .title("title")
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .favorites(null)
-                .build();
+        article = Article.newArticle("Hello World This is Title", "description", "this is body of the article", null, authorId, articleIdGenerator);
         UserId userId = authorId;
 
         // WHEN
@@ -86,14 +79,7 @@ class ArticleTest {
     
     @Test
     void isFavoritedBy_return_false_if_there_is_no_userId_in_favorites() {
-        article = Article.builder()
-                .id(articleIdGenerator.generate())
-                .title("title")
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .favorites(new ArrayList<>())
-                .favorites(null)
-                .build();
+        article = Article.newArticle("Hello World This is Title", "description", "this is body of the article", null, authorId, articleIdGenerator);
         UserId userId = authorId;
 
         // WHEN

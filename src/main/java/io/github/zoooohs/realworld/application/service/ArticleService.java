@@ -6,7 +6,6 @@ import io.github.zoooohs.realworld.application.model.user.ProfileResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.article.ArticleUseCase;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileUseCase;
 import io.github.zoooohs.realworld.domain.article.entity.Article;
-import io.github.zoooohs.realworld.domain.article.entity.ArticleId;
 import io.github.zoooohs.realworld.domain.article.service.ArticleIdGenerator;
 import io.github.zoooohs.realworld.domain.article.service.ArticleRepository;
 import io.github.zoooohs.realworld.domain.user.entity.UserId;
@@ -21,8 +20,7 @@ public class ArticleService implements ArticleUseCase {
 
     @Override
     public ArticleResponse create(CreateArticleRequest request, UserId authorId) {
-        ArticleId articleId = articleIdGenerator.generate();
-        Article article = Article.newArticle(articleId, request.title(), request.description(), request.body(), request.tagList(), authorId);
+        Article article = Article.newArticle(request.title(), request.description(), request.body(), request.tagList(), authorId, articleIdGenerator);
         articleRepository.save(article);
 
         boolean favorited = article.isFavoritedBy(authorId);
