@@ -74,10 +74,6 @@ public class FakeUserRepository implements UserRepository {
                         ? new ArrayList<>(found.getFollowers())
                         : new ArrayList<>()
                 )
-                .followings(found.getFollowings() != null
-                        ? new ArrayList<>(found.getFollowings())
-                        : new ArrayList<>()
-                )
                 .build();
     }
 }

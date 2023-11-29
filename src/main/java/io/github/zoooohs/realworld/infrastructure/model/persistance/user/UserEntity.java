@@ -38,7 +38,7 @@ public class UserEntity {
                 .password(user.getPassword())
                 .bio(user.getBio())
                 .image(user.getImage())
-                .followers(FollowEntity.userFollowers(user.getId(), user.getFollowings()))
+                .followers(FollowEntity.userFollowers(user.getId(), user.getFollowers()))
                 .build();
     }
 

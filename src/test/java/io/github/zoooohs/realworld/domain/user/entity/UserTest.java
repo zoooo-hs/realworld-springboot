@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 class UserTest {
@@ -32,99 +31,6 @@ class UserTest {
     @Test
     void newUser() {
         User user = User.newUser("hyunsu", "abc@def.xyz", "hyunsu", passwordManager, userIdGenerator);
-    }
-
-    @Test
-    void isFollowingWithInputNullReturnFalse() {
-        // GIVEN
-        User user = User.builder()
-                .id(newId())
-                .email("123@456.zz")
-                .username("name")
-                .password("123123")
-                .build();
-
-        // WHEN
-        boolean following = user.isFollowing(null);
-
-        // THEN
-        Assertions.assertFalse(following);
-    }
-
-    @Test
-    void isFollowingInputContainsInFollowerReturnTrue() {
-        UserId followerId = newId();
-        UserId followeeId = newId();
-        User user = User.builder()
-                .id(followerId)
-                .email("123@456.zz")
-                .username("followee")
-                .password("123123")
-                .followings(List.of(followeeId))
-                .build();
-
-        // WHEN
-        boolean following = user.isFollowing(followeeId);
-
-        // THEN
-        Assertions.assertTrue(following);
-    }
-
-    @Test
-    void isFollowingInputNotContainsInFollowerReturnFalse() {
-        User user = User.builder()
-                .id(newId())
-                .email("123@456.zz")
-                .username("followee")
-                .password("123123")
-                .followings(List.of(newId()))
-                .build();
-
-        UserId notFollowingUserId = newId();
-
-        // WHEN
-        boolean following = user.isFollowing(notFollowingUserId);
-
-        // THEN
-        Assertions.assertFalse(following);
-    }
-
-    @Test
-    void isFollowingFollowerNullReturnFalse() {
-        User user = User.builder()
-                .id(newId())
-                .email("123@456.zz")
-                .username("followee")
-                .password("123123")
-                .followings(null)
-                .build();
-
-        UserId anyUserId = newId();
-
-        // WHEN
-        boolean following = user.isFollowing(anyUserId);
-
-        // THEN
-        Assertions.assertFalse(following);
-    }
-
-    @Test
-    void isFollowingFollowerEmptyReturnFalse() {
-        User user = User.builder()
-                .id(newId())
-                .email("123@456.zz")
-                .username("followee")
-                .password("123123")
-                .followings(Collections.emptyList())
-                .build();
-
-        UserId anyUserId = newId();
-
-        // WHEN
-        boolean following = user.isFollowing(anyUserId);
-
-        // THEN
-        Assertions.assertFalse(following);
     }
 
     @Test

@@ -22,7 +22,6 @@ public class User {
     private String password;
     private String bio;
     private String image;
-    private List<UserId> followings;
     private List<UserId> followers;
 
     private User(UserId id, String username, String email, String password, PasswordManager passwordManager) {
@@ -31,7 +30,6 @@ public class User {
         setEmail(email);
         changePassword(password, passwordManager);
         followers = new ArrayList<>();
-        followings = new ArrayList<>();
     }
 
     public static User newUser(String username, String email, String password, PasswordManager passwordManager, UserIdGenerator userIdGenerator) {
@@ -88,14 +86,6 @@ public class User {
 
     private void setImage(String image) {
         this.image = image;
-    }
-
-    public boolean isFollowing(UserId userId) {
-        if (userId == null) {
-            return false;
-        }
-        if (followings == null) return false;
-        return followings.contains(userId);
     }
 
     public boolean isFollowedBy(UserId currentUserId) {
