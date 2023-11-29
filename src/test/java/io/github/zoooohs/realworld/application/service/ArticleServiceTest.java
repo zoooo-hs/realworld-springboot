@@ -4,16 +4,14 @@ import io.github.zoooohs.realworld.application.model.article.ArticleResponse;
 import io.github.zoooohs.realworld.application.model.article.CreateArticleRequest;
 import io.github.zoooohs.realworld.application.port.in.usecase.article.ArticleUseCase;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileUseCase;
-import io.github.zoooohs.realworld.application.port.out.persistance.article.ArticleIdGenerator;
-import io.github.zoooohs.realworld.application.port.out.persistance.article.ArticleRepository;
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserIdGenerator;
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
-import io.github.zoooohs.realworld.domain.model.user.User;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
-import io.github.zoooohs.realworld.fake.FakeArticleIdGenerator;
-import io.github.zoooohs.realworld.fake.FakeArticleRepository;
-import io.github.zoooohs.realworld.fake.FakeUserIdGenerator;
-import io.github.zoooohs.realworld.fake.FakeUserRepository;
+import io.github.zoooohs.realworld.domain.article.service.ArticleIdGenerator;
+import io.github.zoooohs.realworld.domain.article.service.ArticleRepository;
+import io.github.zoooohs.realworld.domain.user.entity.User;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
+import io.github.zoooohs.realworld.domain.user.service.PasswordManager;
+import io.github.zoooohs.realworld.domain.user.service.UserIdGenerator;
+import io.github.zoooohs.realworld.domain.user.service.UserRepository;
+import io.github.zoooohs.realworld.fake.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,12 +24,13 @@ class ArticleServiceTest {
         ArticleIdGenerator articleIdGenerator = new FakeArticleIdGenerator(-1L);
         UserIdGenerator userIdGenerator = new FakeUserIdGenerator(-1L);
         UserRepository userRepository = new FakeUserRepository();
+        PasswordManager passwordManager = new FakePasswordManager("fake");
         ArticleRepository articleRepository = new FakeArticleRepository();
         ProfileUseCase profileUseCase = new ProfileService(userRepository);
         ArticleUseCase sut = new ArticleService(articleIdGenerator, articleRepository, profileUseCase);
 
-        UserId authorId = userIdGenerator.generate();
-        User author = new User(authorId, "abc@def.zz", "password", "author");
+        User author = User.newUser("author", "abc@def.zz", "password", passwordManager, userIdGenerator);
+        UserId authorId = author.getId();
         userRepository.save(author);
 
         CreateArticleRequest createArticleRequest = new CreateArticleRequest("Hello World This is Title", "description", "this is body of the article", null);

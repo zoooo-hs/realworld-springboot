@@ -1,10 +1,10 @@
-package io.github.zoooohs.realworld.domain;
+package io.github.zoooohs.realworld.domain.user.entity;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserIdGenerator;
-import io.github.zoooohs.realworld.domain.exception.AlreadyAdded;
-import io.github.zoooohs.realworld.domain.exception.FollowingNotFound;
-import io.github.zoooohs.realworld.domain.model.user.User;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.exception.AlreadyAdded;
+import io.github.zoooohs.realworld.domain.user.exception.FollowingNotFound;
+import io.github.zoooohs.realworld.domain.user.service.PasswordManager;
+import io.github.zoooohs.realworld.domain.user.service.UserIdGenerator;
+import io.github.zoooohs.realworld.fake.FakePasswordManager;
 import io.github.zoooohs.realworld.fake.FakeUserIdGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,16 +17,12 @@ import java.util.List;
 class UserTest {
 
     private UserIdGenerator userIdGenerator;
+    private PasswordManager passwordManager;
 
     @BeforeEach
     void setUp() {
         userIdGenerator = new FakeUserIdGenerator(-1L);
-    }
-
-    @Test
-    void newUserGetNonBlankEmailUsernamePassword() {
-        UserId userId = newId();
-        Assertions.assertThrows(AssertionError.class, () -> { new User(userId, "", "", "");});
+        passwordManager = new FakePasswordManager("fake");
     }
 
     private UserId newId() {
@@ -34,20 +30,9 @@ class UserTest {
     }
 
     @Test
-    void newUserEmailMustBeEmailFormat() {
-        UserId userId = newId();
-        Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> { new User(userId,"notemailform", "hyunsu", "123123");}
-        );
-    }
-
-    @Test
     void newUser() {
-        UserId userId = newId();
-        new User(userId, "abc@def.xyz", "hyunsu", "123123") ;
+        User user = User.newUser("hyunsu", "abc@def.xyz", "hyunsu", passwordManager, userIdGenerator);
     }
-
 
     @Test
     void isFollowingWithInputNullReturnFalse() {
@@ -235,5 +220,32 @@ class UserTest {
 
         // THEN
         Assertions.assertFalse(user.isFollowing(followeeId));
+    }
+
+    @Test
+    void isAuthenticatedByPassword_if_password_is_null_return_false() {
+        User user = User.newUser("hyunsu", "abc@def.xyz", "hyunsu", passwordManager, userIdGenerator);
+
+        boolean authenticatedByPassword = user.isAuthenticatedByPassword(null, passwordManager);
+
+        Assertions.assertFalse(authenticatedByPassword);
+    }
+
+    @Test
+    void isAuthenticatedByPassword_if_password_not_match_return_false() {
+        User user = User.newUser("hyunsu", "abc@def.xyz", "hyunsu", passwordManager, userIdGenerator);
+
+        boolean authenticatedByPassword = user.isAuthenticatedByPassword("no-match", passwordManager);
+
+        Assertions.assertFalse(authenticatedByPassword);
+    }
+
+    @Test
+    void isAuthenticatedByPassword_if_password_matches_return_true() {
+        User user = User.newUser("hyunsu", "abc@def.xyz", "hyunsu", passwordManager, userIdGenerator);
+
+        boolean authenticatedByPassword = user.isAuthenticatedByPassword("hyunsu", passwordManager);
+
+        Assertions.assertTrue(authenticatedByPassword);
     }
 }

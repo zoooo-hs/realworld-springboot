@@ -1,7 +1,9 @@
-package io.github.zoooohs.realworld.domain.model.user;
+package io.github.zoooohs.realworld.domain.user.entity;
 
-import io.github.zoooohs.realworld.domain.exception.AlreadyAdded;
-import io.github.zoooohs.realworld.domain.exception.FollowingNotFound;
+import io.github.zoooohs.realworld.domain.user.exception.AlreadyAdded;
+import io.github.zoooohs.realworld.domain.user.exception.FollowingNotFound;
+import io.github.zoooohs.realworld.domain.user.service.PasswordManager;
+import io.github.zoooohs.realworld.domain.user.service.UserIdGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,11 +24,17 @@ public class User {
     private String image;
     private List<UserId> followings;
 
-    public User(UserId id, String email, String password, String username) {
+    private User(UserId id, String username, String email, String password, PasswordManager passwordManager) {
         this.id = id;
         setUsername(username);
         setEmail(email);
-        setPassword(password);
+        changePassword(password, passwordManager);
+    }
+
+    public static User newUser(String username, String email, String password, PasswordManager passwordManager, UserIdGenerator userIdGenerator) {
+        UserId id = userIdGenerator.generate();
+        return new User(id, username, email, password, passwordManager);
+
     }
 
     private void setEmail(String email) {
@@ -51,11 +59,6 @@ public class User {
         this.username = username;
     }
 
-    private void setPassword(String password) {
-        assert password != null && !password.isEmpty();
-        this.password = password;
-    }
-
     public void changeEmail(String email) {
         setEmail(email);
     }
@@ -64,8 +67,8 @@ public class User {
         setUsername(username);
     }
 
-    public void changePassword(String password) {
-        setPassword(password);
+    public void changePassword(String password, PasswordManager passwordManager) {
+        this.password = passwordManager.encrypt(password);
     }
 
     public void changeBio(String bio) {
@@ -107,5 +110,12 @@ public class User {
             throw new FollowingNotFound();
         }
         followings.remove(userId);
+    }
+
+    public boolean isAuthenticatedByPassword(String rawPassword, PasswordManager passwordManager) {
+        if (rawPassword == null) {
+            return false;
+        }
+        return passwordManager.match(rawPassword, this.password);
     }
 }

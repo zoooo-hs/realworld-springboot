@@ -1,8 +1,8 @@
 package io.github.zoooohs.realworld.fake;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.article.ArticleRepository;
-import io.github.zoooohs.realworld.domain.model.article.Article;
-import io.github.zoooohs.realworld.domain.model.article.ArticleId;
+import io.github.zoooohs.realworld.domain.article.entity.Article;
+import io.github.zoooohs.realworld.domain.article.entity.ArticleId;
+import io.github.zoooohs.realworld.domain.article.service.ArticleRepository;
 
 import java.util.HashMap;
 import java.util.Map;

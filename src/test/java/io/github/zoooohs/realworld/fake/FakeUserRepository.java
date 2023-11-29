@@ -1,8 +1,8 @@
 package io.github.zoooohs.realworld.fake;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
-import io.github.zoooohs.realworld.domain.model.user.User;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.User;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
+import io.github.zoooohs.realworld.domain.user.service.UserRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;

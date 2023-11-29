@@ -1,4 +1,4 @@
-package io.github.zoooohs.realworld.application.port.out.security;
+package io.github.zoooohs.realworld.domain.user.service;
 
 public interface PasswordManager {
     String encrypt(String rawPassword);

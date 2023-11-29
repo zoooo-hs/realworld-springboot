@@ -3,7 +3,7 @@ package io.github.zoooohs.realworld.infrastructure.adapter.in.rest.user;
 import io.github.zoooohs.realworld.application.model.user.ProfileResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileFollowUseCase;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileUseCase;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
 import io.github.zoooohs.realworld.infrastructure.model.rest.SingleProfileResponse;
 import io.github.zoooohs.realworld.infrastructure.model.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;

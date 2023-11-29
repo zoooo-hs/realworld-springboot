@@ -1,7 +1,7 @@
-package io.github.zoooohs.realworld.application.port.out.persistance.user;
+package io.github.zoooohs.realworld.domain.user.service;
 
-import io.github.zoooohs.realworld.domain.model.user.User;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.User;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
 
 import java.util.Optional;
 

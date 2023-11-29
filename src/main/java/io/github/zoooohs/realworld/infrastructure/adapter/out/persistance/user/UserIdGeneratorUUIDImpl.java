@@ -1,7 +1,7 @@
 package io.github.zoooohs.realworld.infrastructure.adapter.out.persistance.user;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserIdGenerator;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
+import io.github.zoooohs.realworld.domain.user.service.UserIdGenerator;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;

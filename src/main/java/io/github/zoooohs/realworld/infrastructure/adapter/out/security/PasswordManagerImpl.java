@@ -1,6 +1,6 @@
 package io.github.zoooohs.realworld.infrastructure.adapter.out.security;
 
-import io.github.zoooohs.realworld.application.port.out.security.PasswordManager;
+import io.github.zoooohs.realworld.domain.user.service.PasswordManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

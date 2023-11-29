@@ -1,6 +1,6 @@
-package io.github.zoooohs.realworld.domain.model.article;
+package io.github.zoooohs.realworld.domain.article.entity;
 
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

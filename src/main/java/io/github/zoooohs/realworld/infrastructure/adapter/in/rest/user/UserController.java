@@ -3,7 +3,7 @@ package io.github.zoooohs.realworld.infrastructure.adapter.in.rest.user;
 import io.github.zoooohs.realworld.application.model.user.UpdateUserRequest;
 import io.github.zoooohs.realworld.application.model.user.UsersResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.AuthenticationUseCase;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
 import io.github.zoooohs.realworld.infrastructure.model.rest.SingleUserResponse;
 import io.github.zoooohs.realworld.infrastructure.model.rest.UpdateUserHttpRequest;
 import io.github.zoooohs.realworld.infrastructure.model.security.UserPrincipal;

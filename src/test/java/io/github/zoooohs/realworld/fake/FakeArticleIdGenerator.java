@@ -1,7 +1,7 @@
 package io.github.zoooohs.realworld.fake;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.article.ArticleIdGenerator;
-import io.github.zoooohs.realworld.domain.model.article.ArticleId;
+import io.github.zoooohs.realworld.domain.article.entity.ArticleId;
+import io.github.zoooohs.realworld.domain.article.service.ArticleIdGenerator;
 
 public class FakeArticleIdGenerator implements ArticleIdGenerator {
     private Long currentId;

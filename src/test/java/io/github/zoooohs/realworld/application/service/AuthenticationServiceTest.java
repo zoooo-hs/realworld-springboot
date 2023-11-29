@@ -8,8 +8,8 @@ import io.github.zoooohs.realworld.application.model.user.RegistrationRequest;
 import io.github.zoooohs.realworld.application.model.user.UpdateUserRequest;
 import io.github.zoooohs.realworld.application.model.user.UsersResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.AuthenticationUseCase;
-import io.github.zoooohs.realworld.domain.model.user.User;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.User;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
 import io.github.zoooohs.realworld.fake.FakePasswordManager;
 import io.github.zoooohs.realworld.fake.FakeTokenWriter;
 import io.github.zoooohs.realworld.fake.FakeUserIdGenerator;
@@ -36,9 +36,8 @@ class AuthenticationServiceTest {
 
         sut = new AuthenticationService(userRepository, userIdGenerator, passwordManager, tokenManager);
 
-        userId = userIdGenerator.generate();
-        String encryptedPassword = passwordManager.encrypt("123123");
-        User user = new User(userId, "123@456.zz", encryptedPassword, "name");
+        User user = User.newUser("name", "123@456.zz", "123123", passwordManager, userIdGenerator);
+        userId = user.getId();
         userRepository.save(user);
     }
 

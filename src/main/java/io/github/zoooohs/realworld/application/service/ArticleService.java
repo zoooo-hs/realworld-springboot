@@ -5,11 +5,11 @@ import io.github.zoooohs.realworld.application.model.article.CreateArticleReques
 import io.github.zoooohs.realworld.application.model.user.ProfileResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.article.ArticleUseCase;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.ProfileUseCase;
-import io.github.zoooohs.realworld.application.port.out.persistance.article.ArticleIdGenerator;
-import io.github.zoooohs.realworld.application.port.out.persistance.article.ArticleRepository;
-import io.github.zoooohs.realworld.domain.model.article.Article;
-import io.github.zoooohs.realworld.domain.model.article.ArticleId;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.article.entity.Article;
+import io.github.zoooohs.realworld.domain.article.entity.ArticleId;
+import io.github.zoooohs.realworld.domain.article.service.ArticleIdGenerator;
+import io.github.zoooohs.realworld.domain.article.service.ArticleRepository;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

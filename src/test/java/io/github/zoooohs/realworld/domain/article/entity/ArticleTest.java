@@ -1,11 +1,13 @@
-package io.github.zoooohs.realworld.domain.model.article;
+package io.github.zoooohs.realworld.domain.article.entity;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.article.ArticleIdGenerator;
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserIdGenerator;
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
-import io.github.zoooohs.realworld.domain.model.user.User;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.article.service.ArticleIdGenerator;
+import io.github.zoooohs.realworld.domain.user.entity.User;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
+import io.github.zoooohs.realworld.domain.user.service.PasswordManager;
+import io.github.zoooohs.realworld.domain.user.service.UserIdGenerator;
+import io.github.zoooohs.realworld.domain.user.service.UserRepository;
 import io.github.zoooohs.realworld.fake.FakeArticleIdGenerator;
+import io.github.zoooohs.realworld.fake.FakePasswordManager;
 import io.github.zoooohs.realworld.fake.FakeUserIdGenerator;
 import io.github.zoooohs.realworld.fake.FakeUserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,14 +26,16 @@ class ArticleTest {
     private ArticleIdGenerator articleIdGenerator;
     private UserId authorId;
     private UserIdGenerator userIdGenerator;
+    private PasswordManager passwordManager;
 
     @BeforeEach
     void setUp() {
         articleIdGenerator = new FakeArticleIdGenerator(-1L);
         userIdGenerator = new FakeUserIdGenerator(-1L);
+        passwordManager = new FakePasswordManager("fake");
         UserRepository userRepository = new FakeUserRepository();
         authorId = userIdGenerator.generate();
-        User author = new User(authorId, "abc@def.zz", "password", "author");
+        User author = User.newUser("author", "abc@def.zz", "password", passwordManager, userIdGenerator);
         userRepository.save(author);
         articleId = articleIdGenerator.generate();
         article = Article.newArticle(articleId, "Hello World This is Title", "description", "this is body of the article", null, authorId);

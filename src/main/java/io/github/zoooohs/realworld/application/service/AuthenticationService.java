@@ -8,12 +8,12 @@ import io.github.zoooohs.realworld.application.model.user.RegistrationRequest;
 import io.github.zoooohs.realworld.application.model.user.UpdateUserRequest;
 import io.github.zoooohs.realworld.application.model.user.UsersResponse;
 import io.github.zoooohs.realworld.application.port.in.usecase.user.AuthenticationUseCase;
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserIdGenerator;
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
-import io.github.zoooohs.realworld.application.port.out.security.PasswordManager;
 import io.github.zoooohs.realworld.application.port.out.security.TokenWriter;
-import io.github.zoooohs.realworld.domain.model.user.User;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.User;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
+import io.github.zoooohs.realworld.domain.user.service.PasswordManager;
+import io.github.zoooohs.realworld.domain.user.service.UserIdGenerator;
+import io.github.zoooohs.realworld.domain.user.service.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,16 +41,10 @@ public class AuthenticationService implements AuthenticationUseCase {
             throw new DuplicatedEmail();
         }
 
-        User user = createNewUser(password, email, username);
+        User user = User.newUser(username, email, password, passwordManager, userIdGenerator);
         userRepository.save(user);
 
         return createUsersResponse(user);
-    }
-
-    private User createNewUser(String password, String email, String username) {
-        UserId userId = userIdGenerator.generate();
-        String encryptedPassword = passwordManager.encrypt(password);
-        return new User(userId, email, encryptedPassword, username);
     }
 
     @Override
@@ -59,7 +53,7 @@ public class AuthenticationService implements AuthenticationUseCase {
         String password = authenticationRequest.password();
 
         User authenticatedUser = userRepository.findByEmail(email)
-                .filter(user -> passwordManager.match(password, user.getPassword()))
+                .filter(user -> user.isAuthenticatedByPassword(password, passwordManager))
                 .orElseThrow(NoMatchedAuthentication::new);
 
         return createUsersResponse(authenticatedUser);
@@ -103,8 +97,7 @@ public class AuthenticationService implements AuthenticationUseCase {
         if (rawPassword == null) {
             return;
         }
-        String encryptedPassword = passwordManager.encrypt(rawPassword);
-        currentUser.changePassword(encryptedPassword);
+        currentUser.changePassword(rawPassword, passwordManager);
     }
 
     private void changeUsername(String username, User currentUser) {

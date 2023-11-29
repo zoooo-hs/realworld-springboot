@@ -1,8 +1,8 @@
 package io.github.zoooohs.realworld.infrastructure.adapter.out.persistance.user;
 
-import io.github.zoooohs.realworld.application.port.out.persistance.user.UserRepository;
-import io.github.zoooohs.realworld.domain.model.user.User;
-import io.github.zoooohs.realworld.domain.model.user.UserId;
+import io.github.zoooohs.realworld.domain.user.entity.User;
+import io.github.zoooohs.realworld.domain.user.entity.UserId;
+import io.github.zoooohs.realworld.domain.user.service.UserRepository;
 import io.github.zoooohs.realworld.infrastructure.adapter.out.persistance.user.jpa.UserJpaRepository;
 import io.github.zoooohs.realworld.infrastructure.model.persistance.user.UserEntity;
 import lombok.RequiredArgsConstructor;
